@@ -3,8 +3,8 @@ import { errorMessage } from './api.js';
 
 type Tone = 'primary' | 'secondary' | 'danger' | 'ghost';
 const TONES: Record<Tone, string> = {
-  primary: 'bg-orange-500 text-white hover:bg-orange-600 disabled:bg-orange-300',
-  secondary: 'bg-white text-gray-800 border border-gray-300 hover:bg-gray-50 disabled:text-gray-400',
+  primary: 'bg-neutral-900 text-white hover:bg-neutral-700 disabled:bg-neutral-300',
+  secondary: 'bg-gray-100 text-gray-800 hover:bg-gray-200 disabled:text-gray-400',
   danger: 'bg-red-600 text-white hover:bg-red-700 disabled:bg-red-300',
   ghost: 'text-gray-700 hover:bg-gray-100 disabled:text-gray-400',
 };
@@ -15,7 +15,7 @@ export function Button({ tone = 'primary', busy, className = '', children, ...re
       type="button"
       {...rest}
       disabled={rest.disabled || busy}
-      className={`inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed ${TONES[tone]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed ${TONES[tone]} ${className}`}
     >
       {busy && <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden />}
       {children}
@@ -34,7 +34,7 @@ export function Field({ label, hint, error, children }: { label: string; hint?: 
   );
 }
 
-const inputCls = 'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-200';
+const inputCls = 'w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-200';
 export const Input = (p: InputHTMLAttributes<HTMLInputElement>) => <input {...p} className={`${inputCls} ${p.className ?? ''}`} />;
 export const Select = (p: SelectHTMLAttributes<HTMLSelectElement>) => <select {...p} className={`${inputCls} ${p.className ?? ''}`} />;
 export const Textarea = (p: TextareaHTMLAttributes<HTMLTextAreaElement>) => <textarea {...p} className={`${inputCls} ${p.className ?? ''}`} />;
@@ -61,7 +61,7 @@ export function Notice({ tone = 'info', children }: { tone?: 'info' | 'warn' | '
 export function Spinner({ label = '불러오는 중' }: { label?: string }) {
   return (
     <div className="flex items-center justify-center gap-2 py-10 text-sm text-gray-500" role="status">
-      <span className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-orange-500" aria-hidden />
+      <span className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-neutral-900" aria-hidden />
       {label}
     </div>
   );
@@ -72,5 +72,40 @@ export function Badge({ className = '', children }: { className?: string; childr
 }
 
 export function Card({ className = '', children }: { className?: string; children: ReactNode }) {
-  return <div className={`rounded-xl border border-gray-200 bg-white p-4 shadow-sm ${className}`}>{children}</div>;
+  return <div className={`rounded-2xl border border-gray-100 bg-white p-4 shadow-sm ${className}`}>{children}</div>;
+}
+
+/** PC 로그인 화면: 왼쪽 안내 패널 + 오른쪽 입력 폼 (휴대폰에서는 폼만) */
+export function AuthLayout({ eyebrow, title, intro, points, footer, children }: { eyebrow: string; title: string; intro: string; points: string[]; footer?: ReactNode; children: ReactNode }) {
+  return (
+    <div className="flex min-h-dvh items-center justify-center bg-neutral-100 md:p-8">
+      <div className="flex min-h-dvh w-full max-w-5xl flex-col overflow-hidden bg-white md:min-h-[560px] md:flex-row md:rounded-3xl md:shadow-xl">
+        <aside className="hidden flex-col justify-between bg-gradient-to-br from-neutral-900 to-neutral-700 p-10 text-white md:flex md:w-[46%]">
+          <p className="text-lg font-extrabold tracking-tight">QR 테이블 주문</p>
+          <div>
+            <h2 className="whitespace-pre-line text-3xl font-bold leading-snug">{intro}</h2>
+            <ul className="mt-8 space-y-3 text-sm text-neutral-200">
+              {points.map((p) => (
+                <li key={p} className="flex items-center gap-3">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white/15 text-xs" aria-hidden>✓</span>
+                  {p}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <p className="text-xs text-neutral-400">© QR 테이블 주문</p>
+        </aside>
+        <section className="flex flex-1 flex-col justify-center px-6 py-12 md:px-16">
+          <div className="mx-auto w-full max-w-sm space-y-6">
+            <div>
+              <p className="text-sm font-medium text-gray-400">{eyebrow}</p>
+              <h1 className="mt-1 text-3xl font-bold tracking-tight">{title}</h1>
+            </div>
+            {children}
+            {footer}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
 }

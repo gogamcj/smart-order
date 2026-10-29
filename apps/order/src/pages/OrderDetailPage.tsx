@@ -48,7 +48,7 @@ export function OrderDetailPage() {
         <ol className="space-y-2 rounded-xl border border-gray-200 bg-white p-4">
           {STEPS.map((s, i) => (
             <li key={s.status} className={`flex items-center gap-3 text-sm ${i <= stepIndex ? 'text-gray-900' : 'text-gray-400'}`}>
-              <span className={`h-3 w-3 rounded-full ${i < stepIndex ? 'bg-orange-300' : i === stepIndex ? 'bg-orange-500 ring-4 ring-orange-100' : 'bg-gray-200'}`} />
+              <span className={`h-3 w-3 rounded-full ${i < stepIndex ? 'bg-neutral-400' : i === stepIndex ? 'bg-neutral-900 ring-4 ring-neutral-200' : 'bg-gray-200'}`} />
               <span className="flex-1">{s.label}</span>
             </li>
           ))}
@@ -86,7 +86,7 @@ export function OrderDetailPage() {
           </p>
         ))}
       </div>
-      <Link to="/menu" className="block text-center text-sm font-semibold text-orange-600">
+      <Link to="/menu" className="block text-center text-sm font-semibold text-neutral-900 underline-offset-2 hover:underline">
         추가 주문하기
       </Link>
     </div>

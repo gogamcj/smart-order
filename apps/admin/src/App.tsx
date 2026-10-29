@@ -1,4 +1,4 @@
-import { Badge, Button, Card, dateTime, ErrorBox, Field, Input, Notice, Select, Spinner } from '@qr/web';
+import { AuthLayout, Badge, Button, Card, dateTime, ErrorBox, Field, Input, Notice, Select, Spinner } from '@qr/web';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { api } from './api.js';
@@ -65,8 +65,7 @@ function Login({ loggedInWrongAccount }: { loggedInWrongAccount: boolean }) {
   const login = useMutation({ mutationFn: () => api.post('/api/auth/staff/login', f), onSuccess: () => qc.invalidateQueries({ queryKey: ['me'] }) });
   const logout = useMutation({ mutationFn: () => api.post('/api/auth/logout'), onSuccess: () => qc.invalidateQueries({ queryKey: ['me'] }) });
   return (
-    <div className="mx-auto max-w-sm space-y-4 px-4 pt-20">
-      <h1 className="text-center text-2xl font-bold">플랫폼 관리</h1>
+    <AuthLayout eyebrow="최고 관리자" title="플랫폼 관리" intro={'업체 가입 승인과\n운영 기록 확인'} points={['가입 신청 업체 승인·반려', '업체 이용 정지·해제', '모든 관리 작업을 감사 로그로 확인']}>
       {loggedInWrongAccount && (
         <Notice tone="warn">
           최고 관리자 계정이 아닙니다. <button type="button" className="underline" onClick={() => logout.mutate()}>로그아웃</button>
@@ -78,8 +77,8 @@ function Login({ loggedInWrongAccount }: { loggedInWrongAccount: boolean }) {
         <ErrorBox error={login.error} />
         <Button type="submit" className="w-full" busy={login.isPending}>로그인</Button>
       </form>
-      <p className="text-center text-xs text-gray-500">최고 관리자 계정은 서버에서 <code>pnpm --filter @qr/api admin:create</code> 로만 만들 수 있습니다.</p>
-    </div>
+      <p className="text-xs text-gray-500">최고 관리자 계정은 서버에서 <code>pnpm --filter @qr/api admin:create</code> 로만 만들 수 있습니다.</p>
+    </AuthLayout>
   );
 }
 
@@ -94,8 +93,8 @@ function Console({ name }: { name: string }) {
     <div className="mx-auto max-w-6xl space-y-4 p-4">
       <header className="flex flex-wrap items-center gap-3">
         <h1 className="mr-auto text-xl font-bold">플랫폼 관리</h1>
-        <button type="button" className={`rounded-lg px-3 py-1.5 text-sm ${tab === 'tenants' ? 'bg-orange-100 font-semibold text-orange-700' : ''}`} onClick={() => setTab('tenants')}>업체</button>
-        <button type="button" className={`rounded-lg px-3 py-1.5 text-sm ${tab === 'audit' ? 'bg-orange-100 font-semibold text-orange-700' : ''}`} onClick={() => setTab('audit')}>감사 로그</button>
+        <button type="button" className={`rounded-lg px-3 py-1.5 text-sm ${tab === 'tenants' ? 'bg-neutral-900 font-semibold text-white' : ''}`} onClick={() => setTab('tenants')}>업체</button>
+        <button type="button" className={`rounded-lg px-3 py-1.5 text-sm ${tab === 'audit' ? 'bg-neutral-900 font-semibold text-white' : ''}`} onClick={() => setTab('audit')}>감사 로그</button>
         <span className="text-sm text-gray-500">{name}</span>
         <button type="button" className="text-sm underline" onClick={() => logout.mutate()}>로그아웃</button>
       </header>

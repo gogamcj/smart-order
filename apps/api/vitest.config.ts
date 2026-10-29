@@ -1,6 +1,9 @@
+import swc from 'unplugin-swc';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
+  // NestJS 의존성 주입은 데코레이터 메타데이터가 필요해 esbuild 대신 swc 로 변환한다
+  plugins: [swc.vite({ module: { type: 'es6' } })],
   test: {
     include: ['test/**/*.test.ts'],
     testTimeout: 30_000,

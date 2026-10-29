@@ -1,6 +1,18 @@
-# API 명세 (1단계 초안)
+# API 명세
 
-> 상태: **설계 초안, 미구현.** 2단계부터 NestJS 에서 구현하면서 OpenAPI(`/api/docs`)를 자동 생성하고, 이 문서는 그 요약으로 유지합니다.
+> 상태(2단계): 아래 초안 중 인증·업체·매장·테이블·QR·메뉴·고객 주문·업체 주문·결제 요청/확정은 구현되었습니다(`apps/api/src/*/*.controller.ts`).
+> 실제 경로·요청 형식은 컨트롤러와 API 테스트(`apps/api/test/api/`)가 기준이며, 초안과 다른 점은 아래에 정리합니다.
+> OpenAPI 자동 문서(`/api/docs`)는 아직 만들지 않았습니다(⬜).
+>
+> 초안과 달라진 점
+> - CSRF: 변경 요청에 `X-Requested-With: qr-order` 헤더 + 허용된 Origin 이 필요합니다.
+> - 고객 주문 컨텍스트: `GET /api/qr/:token` 이 서명된 쿠키(`qr_ctx`)를 심고, 이후 `GET /api/menus`, `POST /api/orders/quote`, `POST /api/orders` 는 그 쿠키로 매장·테이블을 정합니다(본문에 매장 ID 를 받지 않음).
+> - 주문 생성: `clientRequestId`(중복 방지 키) + `expectedTotal`(견적 금액)을 보내며, 서버 재계산 금액이 다르면 `409 PRICE_CHANGED` 와 새 견적을 돌려줍니다.
+> - 결제: `POST /api/payments {orderId}` → PG 결제창 → `POST /api/payments/:id/confirm`. PG 미설정이면 `503 PAYMENT_NOT_CONFIGURED`. 웹훅(`/api/webhooks/...`)은 3단계.
+> - 업체 주문 상태 변경: `PATCH /api/merchant/orders/:id/status {to, expectedVersion, reason}`. 버전이 다르면 `409 VERSION_CONFLICT`.
+> - 실시간 SSE(`/api/merchant/stream` 등)는 4단계. 지금은 화면이 5초마다 조회합니다.
+
+(이하 1단계 초안)
 
 ## 공통 규칙
 

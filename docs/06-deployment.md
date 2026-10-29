@@ -8,11 +8,25 @@
 | 일반 웹호스팅에서 상시 Node.js 프로세스 실행 | **가정하지 않음** | PHP/Apache 기반 상품. 백엔드는 별도 서버로 분리 |
 | SSE/WebSocket 장시간 연결 | **가정하지 않음** | 백엔드에서 처리 |
 | 크론·백그라운드 작업 | **가정하지 않음** | 백엔드 worker 에서 처리 |
-| SPA 경로 새로고침(`.htaccess` mod_rewrite) | **확인 필요** | 미지원이면 해시 라우팅(`/#/q/토큰`)으로 전환. 빌드 옵션으로 둘 다 지원할 예정 |
-| 무료 SSL 과 도메인 연결, 서브도메인 여러 개 | **확인 필요** | 고객·업체·관리자 3개 서브도메인 필요. 안 되면 경로 분리(`/order`, `/partner`, `/admin`) |
-| 개발언어 VPS 호스팅(2026-08 출시 보도) | **확인 필요** | 백엔드를 Cafe24 안에 둘지 판단: Docker 설치, 고정 IP, 방화벽, 스냅샷 백업, 서울 리전 |
+| SPA 경로 새로고침(`.htaccess` mod_rewrite) | **확인 필요** (상품 안내에 명시 없음) | 두 방식 모두 구현 완료: 일반 주소(`VITE_ROUTER=browser` + 함께 배포되는 `.htaccess`) / 해시 주소(`VITE_ROUTER=hash`, 서버 `ORDER_WEB_ROUTING=hash`, QR 주소가 `/#/q/토큰`). 해시 방식은 브라우저 점검으로 확인함 |
+| 서브도메인 여러 개 | 상품마다 다름 | 뉴아우토반 퍼스트클래스: 서브도메인 20개 / 비즈니스: 서브도메인 없음 → 경로 분리(`/order`, `/partner`, `/admin`, `VITE_BASE_PATH`) |
+| 무료 SSL | 기본 제공 도메인(mycafe24.com)만 무료로 안내됨 | 연결 도메인의 SSL 은 별도 신청·비용 확인 필요 |
+| 홈페이지 호스팅(최저가 상품) | 사용하지 않음 | 서브도메인·서버 스크립트 불가 |
+| Cafe24 리눅스 가상서버 | 2026-10 확인 시 품절 | 백엔드는 NCP 또는 AWS 서울 리전 |
 
-> 사용자 Cafe24 계정의 실제 상품명·관리 화면을 확인하지 못했습니다. 상품명을 알려주시면 이 표를 확정합니다.
+### 추천 상품 (2026-10-29 Cafe24 공개 안내 기준, 가격은 바뀔 수 있음)
+
+| 상품 | 월 요금(1년 약정 기준 안내가) | 트래픽 | 서브도메인 | 이 프로젝트에서 |
+|---|---|---|---|---|
+| **뉴아우토반 퍼스트클래스 (추천)** | 약 10,800원 | 하루 20GB | 20개 | `order.`·`partner.`·`admin.` 서브도메인 구성 가능 |
+| 뉴아우토반 비즈니스 (최소 비용) | 약 6,300원 | 하루 10GB | 없음 | 한 도메인에 경로 분리로 3개 앱 배치 |
+
+트래픽 추정: 화면 묶음(JS+CSS) 한 번에 약 100KB(gzip). 메뉴 이미지는 API 서버(나중에 객체 스토리지)에서 내려가므로 Cafe24 트래픽에 포함되지 않습니다.
+
+### 쿠키·도메인 규칙 (중요)
+- 세션 쿠키는 `SameSite=Lax` 이므로 **화면과 API 가 같은 등록 도메인(같은 사이트)** 이어야 합니다. 예: `order.example.kr` + `api.example.kr` (가능), `xxx.mycafe24.com` + `api.example.kr` (불가: 로그인이 유지되지 않음).
+- 따라서 Cafe24 에 **자체 도메인을 연결**하고, 같은 도메인의 하위 이름으로 API 서버를 둡니다.
+- `ORDER_WEB_ORIGIN` 은 경로를 포함할 수 있습니다(예: `https://www.example.kr/order`). CORS·CSRF 검사는 오리진(`https://www.example.kr`) 기준입니다.
 
 ## 2. 배포 구조
 
@@ -59,7 +73,10 @@ flowchart TB
 - [ ] 도메인·HTTPS: 4개 호스트 인증서 정상, HSTS
 - [ ] API 접근: `GET /readyz` 200
 - [ ] DB 연결, `pnpm db:migrate` 결과 확인, `pnpm db:status` 미적용 없음
-- [ ] 카카오 Redirect URI 가 환경별로 등록됨
+- [ ] 카카오 Redirect URI 가 환경별로 등록됨, 카카오 REST API 키·Client Secret 은 서버 환경변수에만(프런트 빌드 변수 `VITE_*` 에 넣지 않음)
+- [ ] 프런트 빌드 변수 확인: `VITE_API_BASE_URL`, `VITE_ROUTER`, `VITE_BASE_PATH`, 고객 앱 `VITE_DEV_LOGIN` 은 반드시 false
+- [ ] DB 로그인 계정: `qr_api_login`(GRANT qr_app), `qr_worker_login`(GRANT qr_system) 생성, 비밀번호는 시크릿 저장소
+- [ ] 최고 관리자 계정: 서버에서 `pnpm --filter @qr/api admin:create <email>`
 - [ ] PG 테스트 결제 1건 + 웹훅 수신 확인 + 취소 확인
 - [ ] 알림 서비스 설정(또는 비활성 상태 명시)
 - [ ] 환경변수 등록(`.env.example` 전 항목), 시크릿 저장소 확인

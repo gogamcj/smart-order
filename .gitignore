@@ -7,3 +7,4 @@ coverage/
 *.log
 .DS_Store
 apps/*/test-results/
+apps/api/var/

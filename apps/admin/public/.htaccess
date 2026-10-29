@@ -1,0 +1,16 @@
+# 일반 주소(VITE_ROUTER=browser)를 쓸 때 모든 화면 주소를 index.html 로 돌린다.
+# 호스팅에서 mod_rewrite 가 동작하지 않으면 VITE_ROUTER=hash 로 빌드한다.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+  RewriteRule ^ index.html [L]
+</IfModule>
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  <FilesMatch "index\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

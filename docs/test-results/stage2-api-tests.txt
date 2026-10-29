@@ -1,0 +1,153 @@
+# 2단계 자동 테스트 실행 결과 2026-10-29T05:10:38Z
+# Node v22.22.0, PostgreSQL 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1), vitest 3.2.4
+# 명령: pnpm test   (루트에서 실행, TEST_DATABASE_ADMIN_URL=postgres://postgres:***@localhost:5432/postgres)
+# API 테스트는 실제 PostgreSQL 임시 DB + Nest 앱 전체(가드·필터·미들웨어 포함)를 띄워 HTTP 로 호출한다.
+# 카카오 API 는 FakeKakao, PG 는 가짜 PG(테스트 전용)로 대체. 실제 외부 연동 테스트가 아님.
+
+## apps/api
+
+ RUN  v3.2.4 /home/user/smart-order/apps/api
+
+ ✓ test/api/merchant.test.ts > 업체 가입·승인·매장·QR·메뉴 관리 (API) > 업체 가입 신청은 승인 대기 상태이며, 승인 전에는 QR 로 주문할 수 없다 168ms
+ ✓ test/api/merchant.test.ts > 업체 가입·승인·매장·QR·메뉴 관리 (API) > 정지된 업체는 조회만 가능하고 고객 주문이 막히며, 해제하면 다시 동작한다 291ms
+ ✓ test/api/merchant.test.ts > 업체 가입·승인·매장·QR·메뉴 관리 (API) > 잘못된 상태 전이(승인된 업체를 다시 거절 등)는 거부된다 7ms
+ ✓ test/api/merchant.test.ts > 업체 가입·승인·매장·QR·메뉴 관리 (API) > QR 재발급 시 이전 QR 과 그 QR 로 들어온 주문 화면이 즉시 막힌다 175ms
+ ✓ test/api/merchant.test.ts > 업체 가입·승인·매장·QR·메뉴 관리 (API) > 테이블 비활성화·삭제, 일괄 생성, QR 이미지·인쇄 PDF 406ms
+ ✓ test/api/merchant.test.ts > 업체 가입·승인·매장·QR·메뉴 관리 (API) > 이미지 업로드: 실제 이미지는 WebP 로 재인코딩되고, 위장 파일·큰 파일은 거부된다 199ms
+ ✓ test/api/merchant.test.ts > 업체 가입·승인·매장·QR·메뉴 관리 (API) > 다른 업체의 이미지는 메뉴에 연결할 수 없다 186ms
+ ✓ test/api/merchant.test.ts > 업체 가입·승인·매장·QR·메뉴 관리 (API) > 메뉴 복제는 옵션까지 복사하고 판매 중지 상태로 만든다 91ms
+ ✓ test/api/merchant.test.ts > 업체 가입·승인·매장·QR·메뉴 관리 (API) > 주문 기록이 있는 옵션도 옵션 구성을 바꿀 수 있고, 지난 주문의 옵션 스냅샷은 남는다 90ms
+ ✓ test/api/merchant.test.ts > 업체 가입·승인·매장·QR·메뉴 관리 (API) > 정산 계좌는 암호화되어 저장되고 끝 4자리만 조회된다 21ms
+ ✓ test/api/merchant.test.ts > 업체 가입·승인·매장·QR·메뉴 관리 (API) > 직원 추가: 가입하지 않은 이메일은 안내 오류, 가입한 직원은 추가된다 115ms
+ ✓ test/api/ordering.test.ts > 고객 주문과 업체 주문 처리 (API) > [18-7] 할인가·옵션 추가금·수량으로 서버가 금액을 계산한다 67ms
+ ✓ test/api/ordering.test.ts > 고객 주문과 업체 주문 처리 (API) > [18-7] 옵션 규칙 위반(필수 미선택, 최대 초과, 다른 메뉴 옵션, 중복)은 거부된다 93ms
+ ✓ test/api/ordering.test.ts > 고객 주문과 업체 주문 처리 (API) > [18-8] 품절 메뉴·품절 옵션은 견적과 주문 모두 차단된다 99ms
+ ✓ test/api/ordering.test.ts > 고객 주문과 업체 주문 처리 (API) > [18-9] 견적 후 가격이 바뀌면 주문 시 PRICE_CHANGED 와 새 견적을 돌려준다 88ms
+ ✓ test/api/ordering.test.ts > 고객 주문과 업체 주문 처리 (API) > [18-9] 브라우저가 보낸 가격 필드는 무시된다 71ms
+ ✓ test/api/ordering.test.ts > 고객 주문과 업체 주문 처리 (API) > [18-10] 같은 clientRequestId 로 다시 보내면 주문이 하나만 생긴다 97ms
+ ✓ test/api/ordering.test.ts > 고객 주문과 업체 주문 처리 (API) > 결제 전 주문은 업체 화면에 보이지 않고, 결제 확인 후 신규 주문으로 보인다 163ms
+ ✓ test/api/ordering.test.ts > 고객 주문과 업체 주문 처리 (API) > [18-11] 허용된 상태 전이만 가능하고, 고객 화면에 서버 상태가 반영된다 171ms
+ ✓ test/api/ordering.test.ts > 고객 주문과 업체 주문 처리 (API) > [18-11] 두 직원이 같은 버전으로 동시에 처리하면 한 명은 VERSION_CONFLICT 130ms
+ ✓ test/api/ordering.test.ts > 고객 주문과 업체 주문 처리 (API) > [18-12] 상태 변경 이력에 처리 직원·변경 전후·사유가 남는다 160ms
+ ✓ test/api/ordering.test.ts > 고객 주문과 업체 주문 처리 (API) > 결제된 주문을 거절하면 전액 환불 요청이 기록된다 (PG 환불 실행은 3단계) 116ms
+ ✓ test/api/ordering.test.ts > 고객 주문과 업체 주문 처리 (API) > 주문 스냅샷: 메뉴 이름·가격을 바꿔도 지난 주문 내용은 그대로 112ms
+ ✓ test/api/ordering.test.ts > 고객 주문과 업체 주문 처리 (API) > 업체가 주문 접수를 멈추면 주문이 차단되고, 판매 시간 밖 메뉴는 주문할 수 없다 94ms
+ ✓ test/api/ordering.test.ts > 고객 주문과 업체 주문 처리 (API) > 고객 주문 내역에는 본인 주문만 있다 131ms
+ ✓ test/api/security.test.ts > 업체 간 격리·권한·요청 보안 (API) > [18-4] 업체 A 직원은 업체 B 주문을 목록·상세 어디서도 볼 수 없다 (404) 36ms
+ ✓ test/api/security.test.ts > 업체 간 격리·권한·요청 보안 (API) > [18-4] 업체 A 직원은 업체 B 주문 상태를 바꿀 수 없다 11ms
+ ✓ test/api/security.test.ts > 업체 간 격리·권한·요청 보안 (API) > [18-5] 업체 A 직원은 업체 B 메뉴를 수정·품절·삭제·복제할 수 없다 47ms
+ ✓ test/api/security.test.ts > 업체 간 격리·권한·요청 보안 (API) > [18-5] 본문에 업체 B 의 매장·카테고리 ID 를 넣어 메뉴를 만들 수 없다 (파라미터 변조) 15ms
+ ✓ test/api/security.test.ts > 업체 간 격리·권한·요청 보안 (API) > 업체 A 직원은 업체 B 의 테이블·QR·직원을 다룰 수 없다 24ms
+ ✓ test/api/security.test.ts > 업체 간 격리·권한·요청 보안 (API) > 업체를 선택할 때 소속되지 않은 업체 ID 는 거부된다 17ms
+ ✓ test/api/security.test.ts > 업체 간 격리·권한·요청 보안 (API) > [18-6] 직원 역할별 권한: 조회 전용·메뉴 관리·주문 처리 직원의 허용·거부 468ms
+ ✓ test/api/security.test.ts > 업체 간 격리·권한·요청 보안 (API) > 마지막 업체 관리자는 권한을 잃을 수 없다 19ms
+ ✓ test/api/security.test.ts > 업체 간 격리·권한·요청 보안 (API) > [18-34] 로그인 없이·잘못된 계정 종류로 보호된 API 를 호출하면 401/403 66ms
+ ✓ test/api/security.test.ts > 업체 간 격리·권한·요청 보안 (API) > [18-34] 다른 고객의 주문은 ID 를 알아도 볼 수 없다 44ms
+ ✓ test/api/security.test.ts > 업체 간 격리·권한·요청 보안 (API) > [18-34] CSRF: 사용자 정의 헤더가 없거나 허용되지 않은 Origin 의 변경 요청은 거부된다 5ms
+ ✓ test/api/security.test.ts > 업체 간 격리·권한·요청 보안 (API) > [18-34] 오류 응답에 내부 정보(SQL, 스택)가 없고 잘못된 입력은 422 14ms
+ ✓ test/api/security.test.ts > 업체 간 격리·권한·요청 보안 (API) > 보안 헤더가 설정되고 X-Powered-By 는 노출되지 않는다 2ms
+ ✓ test/api/security.test.ts > 속도 제한 (운영 설정 그대로) > 같은 IP 에서 로그인 시도를 반복하면 429 로 막힌다 51ms
+ ✓ test/api/payments.test.ts > 결제 요청·확정 공통 로직 (가짜 PG, API) > 브라우저 복귀만으로는 주문이 확정되지 않는다: PG 승인 전 confirm 은 pending 129ms
+ ✓ test/api/payments.test.ts > 결제 요청·확정 공통 로직 (가짜 PG, API) > PG 승인 후 확정하면 결제 완료 + 주문 접수 대기(placed), 여러 번 호출해도 같다 175ms
+ ✓ test/api/payments.test.ts > 결제 요청·확정 공통 로직 (가짜 PG, API) > PG 승인 금액이 주문 금액과 다르면 결제 실패로 기록하고 주문을 확정하지 않는다 123ms
+ ✓ test/api/payments.test.ts > 결제 요청·확정 공통 로직 (가짜 PG, API) > 결제 실패 후 다시 결제할 수 있다 128ms
+ ✓ test/api/payments.test.ts > 결제 요청·확정 공통 로직 (가짜 PG, API) > 다른 고객의 결제는 확정 요청할 수 없다 143ms
+ ✓ test/api/payments.test.ts > 결제 요청·확정 공통 로직 (가짜 PG, API) > 자동 접수를 켠 업체는 결제 확인과 동시에 접수 상태가 된다 120ms
+ ✓ test/api/payments.test.ts > 결제 미설정 상태 > PG 가 설정되지 않으면 결제 요청은 503 PAYMENT_NOT_CONFIGURED (가짜 성공 없음) 73ms
+ ✓ test/api/auth.test.ts > 인증·세션 (API) > [18-1] 카카오 로그인 성공: 회원 연결 후 세션이 생기고 같은 카카오 ID 는 같은 사용자로 로그인된다 87ms
+ ✓ test/api/auth.test.ts > 인증·세션 (API) > [18-1] 카카오 로그인 취소·실패·state 위조는 로그인 실패 화면으로 보내고 세션을 만들지 않는다 33ms
+ ✓ test/api/auth.test.ts > 인증·세션 (API) > [18-2] 외부 사이트로의 복귀 주소는 허용하지 않는다 (open redirect 차단) 48ms
+ ✓ test/api/auth.test.ts > 인증·세션 (API) > [18-2] 로그인 후에도 QR 주문 컨텍스트(매장·테이블)가 유지된다 60ms
+ ✓ test/api/auth.test.ts > 인증·세션 (API) > [18-3] 만료된 세션과 로그아웃한 세션은 차단된다 115ms
+ ✓ test/api/auth.test.ts > 인증·세션 (API) > 직원 로그인: 비밀번호가 틀리면 계정 존재 여부와 무관하게 같은 오류 79ms
+ ✓ test/api/auth.test.ts > 인증·세션 (API) > 필수 약관에 동의하지 않으면 주문할 수 없다 33ms
+ ✓ test/api/auth.test.ts > 인증·세션 (API) > 회원 탈퇴: 카카오 연결과 세션을 지우고, 같은 카카오 계정은 새 사용자로 가입된다 88ms
+ ✓ test/api/auth.test.ts > 인증·세션 (API) > 개발용 로그인은 설정이 켜진 local 환경에서만 동작한다 (이 테스트 환경은 켜져 있음) 10ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > 같은 결제 요청 ID 는 두 번 만들 수 없다 14ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > [18-15 DB] 승인 금액이 청구 금액과 다르면 결제 완료로 기록할 수 없다 10ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > 한 주문에 결제 완료 건은 하나만 존재할 수 있다 (이중 결제 차단) 10ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > [18-16 DB] 같은 웹훅 이벤트 ID 는 한 번만 저장된다 3ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > [18-19, 18-20 DB] 부분 환불 후 잔액 전체 환불 시 결제 상태가 갱신된다 20ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > [18-21 DB] 결제 금액을 넘는 환불과 같은 키의 중복 환불은 거부된다 14ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > 완료된 환불은 다시 처리 상태를 바꿀 수 없다 16ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > 미결제 주문에는 환불을 만들 수 없다 9ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > 로컬/스테이징 DB 에는 실결제(live), 운영 DB 에는 테스트·가짜 결제가 들어갈 수 없다 9ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > 결제 청구 금액과 결제 요청 ID 는 생성 후 바꿀 수 없다 9ms
+ ✓ test/migrations.test.ts > DB 마이그레이션 > 빈 데이터베이스에 전체 마이그레이션을 순서대로 적용한다 (신규 설치) 297ms
+ ✓ test/migrations.test.ts > DB 마이그레이션 > 다시 실행하면 아무것도 적용하지 않는다 (멱등) 4ms
+ ✓ test/migrations.test.ts > DB 마이그레이션 > 새 마이그레이션 파일만 추가로 적용한다 (기존 버전 업데이트) 7ms
+ ✓ test/migrations.test.ts > DB 마이그레이션 > 이미 적용된 파일 내용이 바뀌면 실행을 거부한다 6ms
+ ✓ test/migrations.test.ts > DB 마이그레이션 > 실패한 마이그레이션은 롤백되고 기록되지 않는다 8ms
+ ✓ test/migrations.test.ts > DB 마이그레이션 > 모든 업체 소유 테이블에 RLS 가 켜져 있다 2ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > [18-4] 업체 A 직원은 업체 B 의 주문을 조회할 수 없다 4ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > [18-4] 업체 B 의 주문 상품·결제·상태 이력도 보이지 않는다 3ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > [18-5] 업체 A 직원은 업체 B 의 메뉴를 수정·삭제할 수 없다 (0행 반영) 3ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > [18-5] 업체 A 직원이 tenant_id 를 B 로 바꿔 메뉴를 넣으면 거부된다 (파라미터 변조) 2ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > [18-5] 자기 업체 메뉴를 다른 업체 소유로 옮길 수 없다 1ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > 업체 A 직원은 업체 B 의 주문 상태를 바꾸거나 환불을 넣을 수 없다 3ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > 업체 A 직원은 업체 B 의 직원 계정·QR·결제 계정을 볼 수 없다 2ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > 업체 컨텍스트가 없으면 아무 데이터도 보이지 않는다 (fail closed) 2ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > 업체 A 의 메뉴가 업체 B 의 카테고리를 참조하면 복합 외래 키가 거부한다 (소유자 권한이라도) 1ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > 고객은 같은 매장이라도 다른 고객의 주문을 볼 수 없다 7ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > [18-6 일부] 고객은 메뉴를 읽을 수만 있고 수정·주문 상태 변경은 할 수 없다 1ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > 고객은 다른 업체 컨텍스트로 주문을 만들 수 없다 2ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > 직원은 업체 승인 상태를 스스로 바꿀 수 없다 (컬럼 권한) 2ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > qr_app 은 결제 웹훅 원문·세션·멱등성 키 테이블에 접근할 수 없다 4ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > 다른 업체 매장으로 주문 번호 발급 함수를 호출할 수 없다 2ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > 결제 확인 없이 주문을 확정(placed)할 수 없다 14ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > [18-11] 허용된 전이만 가능하다: placed → accepted → preparing → ready → completed 19ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > [18-12] 상태 변경마다 이력(처리자·변경 전후)과 실시간 이벤트가 같은 트랜잭션에 기록된다 13ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > 동시에 두 직원이 같은 버전으로 처리하면 한 명만 성공한다 (낙관적 잠금) 12ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > 주문 생성 후 금액·업체·테이블은 바꿀 수 없다 6ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > [18-10 일부] 같은 고객의 같은 client_request_id 주문은 한 번만 생성된다 4ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > 주문 상품 금액은 (단가 + 옵션) × 수량과 일치해야 한다 6ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > 메뉴 가격이 바뀌어도 기존 주문 스냅샷은 그대로다 6ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > 승인 대기·정지된 업체와 주문 접수를 멈춘 업체는 주문을 받을 수 없다 29ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > 매장 화면 표시 번호는 영업일별로 1부터 증가한다 7ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > 할인가는 정가보다 낮아야 한다 1ms
+ ✓ test/qr-and-audit.test.ts > QR 토큰 검증과 감사 로그 > 유효한 토큰은 업체·매장·테이블로 해석된다 6ms
+ ✓ test/qr-and-audit.test.ts > QR 토큰 검증과 감사 로그 > 존재하지 않는 토큰은 아무것도 돌려주지 않는다 2ms
+ ✓ test/qr-and-audit.test.ts > QR 토큰 검증과 감사 로그 > 재발급하면 이전 토큰은 더 이상 쓸 수 없고, 테이블당 유효 QR 은 하나다 10ms
+ ✓ test/qr-and-audit.test.ts > QR 토큰 검증과 감사 로그 > 비활성 테이블, 정지된 업체의 QR 은 해석되지 않는다 12ms
+ ✓ test/qr-and-audit.test.ts > QR 토큰 검증과 감사 로그 > 추측하기 쉬운 짧은 토큰은 저장할 수 없다 2ms
+ ✓ test/qr-and-audit.test.ts > QR 토큰 검증과 감사 로그 > 감사 로그는 추가만 가능하고 수정·삭제할 수 없다 8ms
+ ✓ test/qr-and-audit.test.ts > QR 토큰 검증과 감사 로그 > 플랫폼 과금은 비활성 상태로만 존재한다 1ms
+ ✓ test/env.test.ts > 환경변수 검증 > 운영 환경에서는 개발용 로그인·가짜 결제·비보안 쿠키를 켤 수 없다 9ms
+ ✓ test/env.test.ts > 환경변수 검증 > 구현되지 않은 PG·S3 를 고르면 시작하지 않는다 (가짜로 동작하지 않음) 1ms
+ ✓ test/env.test.ts > 환경변수 검증 > 자리표시자 값은 설정되지 않은 것으로 본다 1ms
+ ✓ test/env.test.ts > 환경변수 검증 > .env.example 그대로(빈 값·자리표시자 포함) 읽으면 기본값으로 시작할 수 있다 4ms
+ ✓ test/env.test.ts > 환경변수 검증 > QR 주소: 서브도메인 + 일반 주소, 경로 분리 + 해시 주소 0ms
+
+ Test Files  11 passed (11)
+      Tests  109 passed (109)
+   Start at  05:10:39
+   Duration  20.51s (transform 512ms, setup 0ms, collect 4.39s, tests 14.09s, environment 2ms, prepare 637ms)
+
+
+## packages/web
+
+ RUN  v3.2.4 /home/user/smart-order/packages/web
+
+ ✓ test/api.test.ts > API 클라이언트 > 쿠키를 함께 보내고 CSRF 헤더를 붙인다 5ms
+ ✓ test/api.test.ts > API 클라이언트 > 서버 오류 형식을 ApiError 로 바꾼다 2ms
+ ✓ test/api.test.ts > API 클라이언트 > 네트워크 오류와 JSON 이 아닌 오류 응답도 사용자 메시지로 바꾼다 1ms
+ ✓ test/api.test.ts > API 클라이언트 > 원화 표기 0ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  05:11:00
+   Duration  306ms (transform 53ms, setup 0ms, collect 68ms, tests 9ms, environment 0ms, prepare 58ms)
+
+
+## apps/order
+
+ RUN  v3.2.4 /home/user/smart-order/apps/order
+
+ ✓ test/cart.test.ts > 장바구니 > 같은 메뉴·같은 옵션은 수량을 합치고, 옵션 순서는 상관없다 2ms
+ ✓ test/cart.test.ts > 장바구니 > 필수 1개 그룹은 라디오처럼, 최대 개수를 넘는 선택은 무시 1ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  05:11:01
+   Duration  305ms (transform 58ms, setup 0ms, collect 57ms, tests 4ms, environment 0ms, prepare 69ms)
+

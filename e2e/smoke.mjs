@@ -67,7 +67,7 @@ try {
   });
 
   await step('업체: 카테고리·메뉴(할인가, 필수 옵션, 이미지) 등록', async () => {
-    await m.getByRole('link', { name: '메뉴' }).click();
+    await m.getByRole('link', { name: '메뉴 관리' }).click();
     await m.getByPlaceholder('새 카테고리').fill('찌개');
     await m.getByRole('button', { name: '추가' }).click();
     await m.getByRole('button', { name: /^찌개/ }).waitFor();
@@ -181,6 +181,8 @@ try {
 
   await step('업체: 주문 현황판에 새 주문 표시(5초 주기) → 접수', async () => {
     await m.getByRole('link', { name: '주문 현황' }).click();
+    // 테이블 보기: 새 주문이 들어온 테이블 칸을 눌러 주문을 연다
+    await m.getByRole('button', { name: /^테이블 1 · 새 주문/ }).click({ timeout: 15_000 });
     const card = m.locator('article', { hasText: '테이블 1' });
     await card.waitFor({ timeout: 15_000 });
     await card.getByText('매운맛').waitFor();
@@ -205,6 +207,7 @@ try {
   });
 
   await step('업체: 주문 접수 일시 중지 → 고객 메뉴에 안내, 주문 버튼 비활성', async () => {
+    await m.getByRole('dialog').getByRole('button', { name: '닫기' }).click();
     await m.getByRole('button', { name: /주문 접수 중/ }).click();
     await m.getByText('주문 접수를 중지했습니다').waitFor();
     await c.goto(orderUrl.replace(/#.*$/, '#/menu'));

@@ -1,3 +1,4 @@
+import { PageHeader } from '../components/PageHeader.js';
 import { Badge, Button, Card, ErrorBox, Input, Notice, saveBlob, Spinner, dateTime } from '@qr/web';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
@@ -40,7 +41,7 @@ export function TablesPage() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-lg font-bold">테이블·QR</h1>
+      <PageHeader title="테이블·QR" desc="테이블을 만들고 QR 코드를 발급·인쇄합니다." />
       <div className="flex flex-wrap gap-4">
         <form className="flex gap-1" onSubmit={(e) => { e.preventDefault(); if (label.trim()) add.mutate(); }}>
           <Input className="w-36" placeholder="테이블 이름 (예: 창가1)" maxLength={30} value={label} onChange={(e) => setLabel(e.target.value)} />

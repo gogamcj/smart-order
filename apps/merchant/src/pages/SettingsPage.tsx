@@ -1,3 +1,4 @@
+import { PageHeader } from '../components/PageHeader.js';
 import { Badge, Button, Card, ErrorBox, Field, Input, Notice, Select, Spinner } from '@qr/web';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
@@ -13,13 +14,16 @@ export function SettingsPage() {
   const admin = tenant.data?.myRole === 'tenant_admin';
   if (tenant.isPending) return <Spinner />;
   return (
-    <div className="grid gap-4 lg:grid-cols-2">
-      <OrderSettings />
-      <StoreSettings />
-      {admin && <TenantInfo />}
-      {admin && <SettlementAccount />}
-      {admin && <AddStore />}
-      {!admin && <Notice>설정 변경은 업체 관리자만 할 수 있습니다.</Notice>}
+    <div className="space-y-4">
+      <PageHeader title="설정" desc="주문 접수 방식, 매장 정보와 영업시간을 정합니다." />
+      <div className="grid gap-4 lg:grid-cols-2">
+        <OrderSettings />
+        <StoreSettings />
+        {admin && <TenantInfo />}
+        {admin && <SettlementAccount />}
+        {admin && <AddStore />}
+        {!admin && <Notice>설정 변경은 업체 관리자만 할 수 있습니다.</Notice>}
+      </div>
     </div>
   );
 }

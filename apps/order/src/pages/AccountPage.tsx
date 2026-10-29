@@ -31,7 +31,7 @@ export function AccountPage() {
     return (
       <div className="space-y-3 pt-10 text-center">
         <p className="text-gray-600">로그인하지 않았습니다.</p>
-        <Link to="/login?returnTo=/account" className="font-semibold text-orange-600">
+        <Link to="/login?returnTo=/account" className="font-semibold text-neutral-900 underline-offset-2 hover:underline">
           로그인
         </Link>
       </div>

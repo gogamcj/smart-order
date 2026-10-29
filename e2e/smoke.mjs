@@ -123,7 +123,7 @@ try {
     await a.getByLabel('이메일').fill(ADMIN_EMAIL);
     await a.getByLabel('비밀번호').fill(ADMIN_PASSWORD);
     await a.getByRole('button', { name: '로그인' }).click();
-    const card = a.locator('div.rounded-xl', { hasText: '홍길동 김치찌개' }).first(); // 최신 신청이 맨 앞
+    const card = a.locator('div.rounded-2xl', { hasText: '홍길동 김치찌개' }).first(); // 최신 신청이 맨 앞
     await a.getByText('홍길동 김치찌개').first().waitFor();
     await a.screenshot({ path: `${SHOTS}/admin-1-pending.png` });
     const [res] = await Promise.all([a.waitForResponse((r) => r.url().includes('/approve')), card.getByRole('button', { name: '승인' }).click()]);

@@ -30,10 +30,20 @@ export function QrEntryPage() {
 
   if (error)
     return (
-      <div className="space-y-3 pt-10">
+      <div className="space-y-4 pt-24 text-center">
+        <p className="text-2xl font-bold leading-snug">QR 코드를 확인할 수 없어요</p>
         <ErrorBox error={error} />
-        <p className="text-sm text-gray-600">QR 코드가 바뀌었거나 사용이 중지되었을 수 있습니다. 테이블의 QR 코드를 다시 스캔하거나 직원에게 문의해 주세요.</p>
+        <p className="text-sm leading-relaxed text-gray-500">QR 코드가 바뀌었거나 사용이 중지되었을 수 있습니다. 테이블의 QR 코드를 다시 스캔하거나 직원에게 문의해 주세요.</p>
       </div>
     );
-  return <Spinner label="테이블 정보를 확인하는 중" />;
+  return (
+    <div className="flex flex-col items-center pt-32 text-center">
+      <p className="text-[1.75rem] font-bold leading-snug">
+        어서오세요!
+        <br />
+        테이블을 확인하고 있어요
+      </p>
+      <Spinner label="잠시만 기다려 주세요" />
+    </div>
+  );
 }

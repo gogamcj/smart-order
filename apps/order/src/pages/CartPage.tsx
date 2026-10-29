@@ -72,7 +72,7 @@ export function CartPage() {
     return (
       <div className="space-y-4 pt-10 text-center">
         <p className="text-gray-600">장바구니가 비어 있습니다.</p>
-        <Link to="/menu" className="font-semibold text-orange-600">메뉴 보러 가기</Link>
+        <Link to="/menu" className="font-semibold text-neutral-900 underline-offset-2 hover:underline">메뉴 보러 가기</Link>
       </div>
     );
 
@@ -143,7 +143,7 @@ export function CartPage() {
           <p className="font-semibold">주문하려면 약관에 동의해 주세요</p>
           {missingTerms.map((t) => (
             <label key={t.id} className="flex items-center gap-2">
-              <input type="checkbox" className="accent-orange-500" checked={!!agree[t.id]} onChange={(e) => setAgree((a) => ({ ...a, [t.id]: e.target.checked }))} />
+              <input type="checkbox" className="accent-neutral-900" checked={!!agree[t.id]} onChange={(e) => setAgree((a) => ({ ...a, [t.id]: e.target.checked }))} />
               <span>[필수] {t.title}</span>
               {t.body_url && <Link to={t.body_url} className="ml-auto text-xs text-gray-500 underline">보기</Link>}
             </label>

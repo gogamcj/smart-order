@@ -43,7 +43,7 @@ export function SelectTenantPage() {
           </div>
         );
       })}
-      <Link to="/apply" className="block text-center text-sm text-orange-600">새 업체 가입 신청</Link>
+      <Link to="/apply" className="block text-center text-sm text-neutral-900 underline-offset-2 hover:underline">새 업체 가입 신청</Link>
     </div>
   );
 }

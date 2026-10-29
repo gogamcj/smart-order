@@ -53,7 +53,7 @@ export function MenusPage() {
       <aside className="space-y-2">
         <h2 className="font-semibold">카테고리</h2>
         {cats.data.map((c) => (
-          <div key={c.id} className={`group flex items-center gap-1 rounded-lg border px-2 py-1.5 text-sm ${c.id === activeCat ? 'border-orange-400 bg-orange-50' : 'border-gray-200 bg-white'}`}>
+          <div key={c.id} className={`group flex items-center gap-1 rounded-lg border px-2 py-1.5 text-sm ${c.id === activeCat ? 'border-neutral-900 bg-neutral-50' : 'border-gray-200 bg-white'}`}>
             <button type="button" className="flex-1 truncate text-left" onClick={() => setCatId(c.id)}>
               {c.name} {!c.isVisible && <Badge className="bg-gray-200 text-gray-600">숨김</Badge>}
             </button>
@@ -94,7 +94,7 @@ export function MenusPage() {
                 <div className="flex flex-wrap items-center gap-1">
                   <span className="font-semibold">{m.name}</span>
                   <Badge className={m.status === 'on_sale' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'}>{MENU_STATUS_LABEL[m.status]}</Badge>
-                  {m.isPopular && <Badge className="bg-orange-100 text-orange-700">인기</Badge>}
+                  {m.isPopular && <Badge className="bg-amber-50 text-amber-600">인기</Badge>}
                 </div>
                 <p className="text-sm">{m.salePrice != null ? <><s className="text-gray-400">{won(m.price)}</s> {won(m.salePrice)}</> : won(m.price)}</p>
                 <p className="text-xs text-gray-500">옵션 그룹 {m.optionGroups.length}개{m.availability.length > 0 && ' · 판매 시간 지정'}</p>
@@ -171,7 +171,7 @@ function MenuEditor({ storeId, categories, categoryId, menu, onDone }: { storeId
   const setGroup = (i: number, g: Partial<AdminOptionGroup>) => setGroups((gs) => gs.map((x, j) => (j === i ? { ...x, ...g } : x)));
 
   return (
-    <Card className="space-y-4 border-orange-300">
+    <Card className="space-y-4 border-neutral-300">
       <h3 className="font-semibold">{menu ? '메뉴 수정' : '새 메뉴'}</h3>
       <div className="grid gap-3 sm:grid-cols-2">
         <Field label="이름" error={issue('name')}><Input value={f.name} maxLength={100} onChange={(e) => setF({ ...f, name: e.target.value })} /></Field>
@@ -221,7 +221,7 @@ function MenuEditor({ storeId, categories, categoryId, menu, onDone }: { storeId
                 <button type="button" className="text-gray-400" aria-label="옵션 삭제" onClick={() => setGroup(i, { options: g.options.filter((_, j) => j !== k) })}>✕</button>
               </div>
             ))}
-            <button type="button" className="text-xs text-orange-600" onClick={() => setGroup(i, { options: [...g.options, { name: '', extraPrice: 0 }] })}>+ 옵션 추가</button>
+            <button type="button" className="text-xs text-neutral-900 underline-offset-2 hover:underline" onClick={() => setGroup(i, { options: [...g.options, { name: '', extraPrice: 0 }] })}>+ 옵션 추가</button>
           </div>
         ))}
       </div>

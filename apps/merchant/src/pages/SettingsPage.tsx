@@ -94,8 +94,8 @@ function StoreSettings() {
         ))}
         {admin && (
           <div className="flex gap-2 text-xs">
-            <button type="button" className="text-orange-600" onClick={() => setF({ ...f, businessHours: [...f.businessHours, { dow: 1, open: '11:00', close: '21:00' }] })}>+ 시간 추가</button>
-            <button type="button" className="text-orange-600" onClick={() => setF({ ...f, businessHours: DAYS.map((_, dow) => ({ dow, open: '11:00', close: '21:00' })) })}>매일 11:00~21:00 로 채우기</button>
+            <button type="button" className="text-neutral-900 underline-offset-2 hover:underline" onClick={() => setF({ ...f, businessHours: [...f.businessHours, { dow: 1, open: '11:00', close: '21:00' }] })}>+ 시간 추가</button>
+            <button type="button" className="text-neutral-900 underline-offset-2 hover:underline" onClick={() => setF({ ...f, businessHours: DAYS.map((_, dow) => ({ dow, open: '11:00', close: '21:00' })) })}>매일 11:00~21:00 로 채우기</button>
           </div>
         )}
         <p className="text-xs text-gray-500">닫는 시각이 여는 시각보다 이르면 다음 날 새벽까지 영업으로 봅니다.</p>
@@ -167,7 +167,7 @@ function SettlementAccount() {
           </div>
         </form>
       )}
-      {acc.data && !edit && <button type="button" className="text-xs text-orange-600 underline" onClick={() => setEdit(true)}>계좌 변경</button>}
+      {acc.data && !edit && <button type="button" className="text-xs text-neutral-900 underline-offset-2 hover:underline underline" onClick={() => setEdit(true)}>계좌 변경</button>}
     </Card>
   );
 }

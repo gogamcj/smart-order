@@ -106,7 +106,7 @@ function Layout() {
           )}
           <nav className="order-last flex w-full gap-1 overflow-x-auto text-sm md:order-none md:w-auto">
             {links.filter((l) => l.show).map((l) => (
-              <NavLink key={l.to} to={l.to} end className={({ isActive }) => `shrink-0 rounded-lg px-3 py-1.5 ${isActive ? 'bg-orange-100 font-semibold text-orange-700' : 'text-gray-600 hover:bg-gray-100'}`}>
+              <NavLink key={l.to} to={l.to} end className={({ isActive }) => `shrink-0 rounded-lg px-3 py-1.5 ${isActive ? 'bg-neutral-900 font-semibold text-white' : 'text-gray-600 hover:bg-gray-100'}`}>
                 {l.label}
               </NavLink>
             ))}

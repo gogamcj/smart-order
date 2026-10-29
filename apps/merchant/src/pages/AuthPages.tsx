@@ -1,4 +1,4 @@
-import { Button, ErrorBox, Field, Input } from '@qr/web';
+import { AuthLayout, Button, ErrorBox, Field, Input } from '@qr/web';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { type FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -7,13 +7,9 @@ import type { Me } from '../types.js';
 
 function Shell({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="mx-auto max-w-sm space-y-5 px-4 pt-16">
-      <div className="text-center">
-        <p className="text-sm font-semibold text-orange-600">QR 테이블 주문</p>
-        <h1 className="mt-1 text-2xl font-bold">{title}</h1>
-      </div>
+    <AuthLayout eyebrow="매장 관리" title={title} intro={'주문부터 메뉴 관리까지\n한 화면에서'} points={['새 주문이 오면 바로 알림', '메뉴·품절을 즉시 반영', '테이블 QR 코드를 한 번에 인쇄']}>
       {children}
-    </div>
+    </AuthLayout>
   );
 }
 
@@ -42,7 +38,7 @@ export function LoginPage() {
     login.mutate();
   };
   return (
-    <Shell title="매장 관리 로그인">
+    <Shell title="로그인">
       <form onSubmit={submit} className="space-y-3">
         <Field label="이메일">
           <Input type="email" autoComplete="username" required value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -53,8 +49,8 @@ export function LoginPage() {
         <ErrorBox error={login.error} />
         <Button type="submit" className="w-full" busy={login.isPending}>로그인</Button>
       </form>
-      <p className="text-center text-sm text-gray-600">
-        처음이신가요? <Link to="/signup" className="font-semibold text-orange-600">계정 만들기</Link>
+      <p className="text-sm text-gray-600">
+        처음이신가요? <Link to="/signup" className="font-semibold text-neutral-900 underline-offset-2 hover:underline">계정 만들기</Link>
       </p>
     </Shell>
   );
@@ -92,8 +88,8 @@ export function SignupPage() {
         <ErrorBox error={signup.error} />
         <Button type="submit" className="w-full" busy={signup.isPending}>가입하기</Button>
       </form>
-      <p className="text-center text-sm text-gray-600">
-        이미 계정이 있나요? <Link to="/login" className="font-semibold text-orange-600">로그인</Link>
+      <p className="text-sm text-gray-600">
+        이미 계정이 있나요? <Link to="/login" className="font-semibold text-neutral-900 underline-offset-2 hover:underline">로그인</Link>
       </p>
     </Shell>
   );

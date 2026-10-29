@@ -1,4 +1,5 @@
-import { mkdtemp, writeFile, copyFile, readdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { mkdtemp, writeFile, copyFile, readdir, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -36,6 +37,23 @@ describe('DB 마이그레이션', () => {
     for (const f of await readdir(MIGRATIONS_DIR)) await copyFile(path.join(MIGRATIONS_DIR, f), path.join(dir, f));
     await writeFile(path.join(dir, '9999_test_add_column.sql'), 'ALTER TABLE stores ADD COLUMN changed text;');
     await expect(migrateUp(db.owner, dir)).rejects.toThrow(/내용이 변경되었습니다/);
+  });
+
+  it('줄바꿈(CRLF/LF)만 다른 사본은 같은 내용으로 본다 (윈도우에서 받은 파일)', async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), 'mig-'));
+    for (const f of await readdir(MIGRATIONS_DIR)) {
+      const text = await readFile(path.join(MIGRATIONS_DIR, f), 'utf8');
+      await writeFile(path.join(dir, f), text.replace(/\r?\n/g, '\r\n'));
+    }
+    await writeFile(path.join(dir, '9999_test_add_column.sql'), 'ALTER TABLE stores ADD COLUMN test_note text;');
+    expect(await migrateUp(db.owner, dir)).toEqual([]);
+  });
+
+  it('윈도우 사본(CRLF)으로 적용했던 DB 에 리눅스 사본(LF)으로 실행해도 통과한다', async () => {
+    const text = await readFile(path.join(MIGRATIONS_DIR, '0001_foundation.sql'), 'utf8');
+    const crlf = createHash('sha256').update(text.replace(/\r?\n/g, '\r\n')).digest('hex');
+    await db.owner.query(`UPDATE schema_migrations SET checksum = $1 WHERE version = '0001'`, [crlf]);
+    expect(await migrateUp(db.owner)).toEqual([]);
   });
 
   it('실패한 마이그레이션은 롤백되고 기록되지 않는다', async () => {

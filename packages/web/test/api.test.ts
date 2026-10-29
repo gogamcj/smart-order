@@ -13,6 +13,7 @@ describe('API 클라이언트', () => {
     expect(url).toBe('https://api.example.kr/api/orders');
     expect(init.credentials).toBe('include');
     expect((init.headers as Record<string, string>)['X-Requested-With']).toBe('qr-order');
+    expect((init.headers as Record<string, string>)['X-Qr-Session']).toBe('staff');
     expect(init.body).toBe('{"a":1}');
   });
 

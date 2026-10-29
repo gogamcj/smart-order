@@ -11,7 +11,11 @@ export interface Migration {
   name: string;
   sql: string;
   checksum: string;
+  /** 같은 내용으로 인정하는 체크섬들. 윈도우(CRLF)와 리눅스(LF) 줄바꿈 차이는 내용 변경으로 보지 않는다 */
+  equivalentChecksums: string[];
 }
+
+const sha256 = (s: string) => createHash('sha256').update(s).digest('hex');
 
 export interface MigrationStatus {
   version: string;
@@ -28,11 +32,13 @@ export async function loadMigrations(dir = MIGRATIONS_DIR): Promise<Migration[]>
     const match = FILE_PATTERN.exec(file);
     if (!match) throw new Error(`마이그레이션 파일명 규칙 위반: ${file} (예: 0007_add_column.sql)`);
     const sql = await readFile(path.join(dir, file), 'utf8');
+    const lf = sql.replace(/\r\n/g, '\n');
     migrations.push({
       version: match[1]!,
       name: match[2]!,
       sql,
-      checksum: createHash('sha256').update(sql).digest('hex'),
+      checksum: sha256(lf),
+      equivalentChecksums: [sha256(lf), sha256(lf.replace(/\n/g, '\r\n'))],
     });
   }
   const versions = new Set(migrations.map((m) => m.version));
@@ -66,7 +72,7 @@ export async function migrateUp(client: Client, dir = MIGRATIONS_DIR): Promise<s
     const applied = new Map(rows.map((r) => [r.version, r.checksum]));
     for (const m of migrations) {
       const checksum = applied.get(m.version);
-      if (checksum && checksum !== m.checksum) {
+      if (checksum && !m.equivalentChecksums.includes(checksum)) {
         throw new Error(`이미 적용된 마이그레이션 ${m.version}_${m.name} 의 내용이 변경되었습니다. 새 마이그레이션 파일로 변경하세요.`);
       }
     }

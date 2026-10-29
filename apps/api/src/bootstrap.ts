@@ -6,6 +6,7 @@ import cookieParser from 'cookie-parser';
 import express from 'express';
 import helmet from 'helmet';
 import { AppModule, type AppOverrides } from './app.module.js';
+import { SESSION_KIND_HEADER } from './auth/session.service.js';
 import { CSRF_HEADER } from './common/csrf.guard.js';
 import type { Env } from './config/env.js';
 
@@ -23,7 +24,7 @@ export async function createApp(env: Env, overrides: AppOverrides = {}): Promise
   app.enableCors({
     origin: [env.ORDER_WEB_ORIGIN, env.MERCHANT_WEB_ORIGIN, env.ADMIN_WEB_ORIGIN].map((o) => new URL(o).origin),
     credentials: true,
-    allowedHeaders: ['Content-Type', CSRF_HEADER, 'Idempotency-Key'],
+    allowedHeaders: ['Content-Type', CSRF_HEADER, SESSION_KIND_HEADER, 'Idempotency-Key'],
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
     maxAge: 600,
   });

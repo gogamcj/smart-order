@@ -12,7 +12,7 @@ import { ENV, type Env } from '../config/env.js';
 import { Database } from '../db/database.js';
 import { Access, CustomerOnly, Public, StaffOnly } from './access.js';
 import { KAKAO_CLIENT, type KakaoClient } from './kakao.client.js';
-import { SessionService } from './session.service.js';
+import { SessionService, sessionKindFor } from './session.service.js';
 
 const OAUTH_COOKIE = 'qr_oauth';
 
@@ -135,7 +135,7 @@ export class AuthController {
   @HttpCode(200)
   async logout(@Req() req: AppRequest, @Res({ passthrough: true }) res: Response) {
     if (req.auth) await this.sessions.revoke(req.auth.sessionId);
-    this.sessions.clearCookie(res);
+    this.sessions.clearCookie(res, sessionKindFor(req));
     return { ok: true };
   }
 
@@ -313,7 +313,7 @@ export class AuthController {
         .execute();
       await audit(tx, { actorUserId: auth.userId, actorKind: 'customer', action: 'user.withdraw', ip: clientIp(req), requestId: req.id });
     });
-    this.sessions.clearCookie(res);
+    this.sessions.clearCookie(res, 'customer');
     return { ok: true };
   }
 }

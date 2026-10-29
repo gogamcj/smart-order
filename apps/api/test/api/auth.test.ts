@@ -90,6 +90,24 @@ describe('인증·세션 (API)', () => {
     expect((await a.get('/api/auth/me')).body.actorKind).toBe('staff');
   });
 
+  it('한 브라우저에서 손님 로그인과 업체 로그인이 서로를 로그아웃시키지 않는다', async () => {
+    const { email } = await staffSignup(h);
+    const b = h.browser();
+    const asStaff = { 'X-Qr-Session': 'staff' };
+    const asCustomer = { 'X-Qr-Session': 'customer' };
+    await b.post('/api/auth/staff/login').set(asStaff).send({ email, password: 'staff-password-1' }).expect(200);
+    await b.post('/api/auth/dev-login').set(asCustomer).send({ nickname: '손님' }).expect(200);
+    expect((await b.get('/api/auth/me').set(asStaff)).body).toMatchObject({ authenticated: true, actorKind: 'staff' });
+    expect((await b.get('/api/auth/me').set(asCustomer)).body).toMatchObject({ authenticated: true, actorKind: 'customer' });
+    // 다시 직원으로 로그인해도 손님 세션은 그대로
+    await b.post('/api/auth/staff/login').set(asStaff).send({ email, password: 'staff-password-1' }).expect(200);
+    expect((await b.get('/api/auth/me').set(asCustomer)).body.actorKind).toBe('customer');
+    // 업체 화면에서 로그아웃하면 업체 세션만 끝난다
+    await b.post('/api/auth/logout').set(asStaff).expect(200);
+    expect((await b.get('/api/auth/me').set(asStaff)).body.authenticated).toBe(false);
+    expect((await b.get('/api/auth/me').set(asCustomer)).body.actorKind).toBe('customer');
+  });
+
   it('필수 약관에 동의하지 않으면 주문할 수 없다', async () => {
     const c = h.browser();
     await c.get(`/api/qr/${m.qrToken}`).expect(200);

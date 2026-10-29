@@ -1,11 +1,28 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { CryptoService } from '../common/crypto.service.js';
 import type { AuthInfo } from '../common/request.js';
 import { ENV, type Env } from '../config/env.js';
 import { Database, type Tx } from '../db/database.js';
 
-export const SESSION_COOKIE = 'qr_sid';
+/**
+ * 손님 세션과 업체·관리자 세션은 쿠키를 따로 쓴다. 화면 세 개가 같은 API 주소를 부르므로
+ * 쿠키 하나를 같이 쓰면 한 브라우저에서 손님 로그인이 업체 로그인을 덮어쓴다(반대도 마찬가지).
+ */
+export const SESSION_COOKIES = { customer: 'qr_csid', staff: 'qr_sid' } as const;
+export type SessionKind = keyof typeof SESSION_COOKIES;
+/** 화면이 어느 세션 쿠키를 쓸지 알려주는 헤더 (고객 화면 'customer', 업체·관리자 화면 'staff') */
+export const SESSION_KIND_HEADER = 'x-qr-session';
+
+export const sessionKindOf = (actorKind: AuthInfo['actorKind']): SessionKind => (actorKind === 'customer' ? 'customer' : 'staff');
+
+/** 요청이 어느 세션 쿠키를 쓰는지. 헤더가 없으면(카카오 로그인 복귀 등 주소 이동) 경로와 가진 쿠키로 정한다 */
+export function sessionKindFor(req: Request): SessionKind {
+  const header = req.get(SESSION_KIND_HEADER);
+  if (header === 'customer' || header === 'staff') return header;
+  if (/^\/api\/(merchant|admin)(\/|$)/.test(req.path)) return 'staff';
+  return req.cookies?.[SESSION_COOKIES.customer] ? 'customer' : 'staff';
+}
 const TTL_HOURS = { customer: 24 * 30, staff: 12, platform_admin: 12 } as const;
 
 @Injectable()
@@ -31,7 +48,7 @@ export class SessionService {
       })
       .execute();
     await tx.updateTable('users').set({ last_login_at: new Date() }).where('id', '=', userId).execute();
-    res.cookie(SESSION_COOKIE, token, {
+    res.cookie(SESSION_COOKIES[sessionKindOf(actorKind)], token, {
       httpOnly: true,
       secure: this.env.cookieSecure,
       sameSite: 'lax',
@@ -73,7 +90,7 @@ export class SessionService {
     );
   }
 
-  clearCookie(res: Response) {
-    res.clearCookie(SESSION_COOKIE, { path: '/', httpOnly: true, secure: this.env.cookieSecure, sameSite: 'lax' });
+  clearCookie(res: Response, kind: SessionKind) {
+    res.clearCookie(SESSION_COOKIES[kind], { path: '/', httpOnly: true, secure: this.env.cookieSecure, sameSite: 'lax' });
   }
 }

@@ -36,11 +36,12 @@ export interface ApiClient {
 
 const NETWORK_MESSAGE = '서버에 연결할 수 없습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요';
 
-export function createApi(baseUrl: string, fetchImpl: typeof fetch = (...a) => fetch(...a)): ApiClient {
+/** session: 이 화면이 쓰는 로그인 쿠키. 고객 화면은 'customer', 업체·관리자 화면은 'staff' (서버가 쿠키를 따로 둔다) */
+export function createApi(baseUrl: string, fetchImpl: typeof fetch = (...a) => fetch(...a), session: 'customer' | 'staff' = 'staff'): ApiClient {
   const base = baseUrl.replace(/\/+$/, '');
   async function request<T>(method: string, path: string, body?: unknown, extra: Record<string, string> = {}): Promise<T> {
     const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
-    const headers: Record<string, string> = { 'X-Requested-With': 'qr-order', Accept: 'application/json', ...extra };
+    const headers: Record<string, string> = { 'X-Requested-With': 'qr-order', 'X-Qr-Session': session, Accept: 'application/json', ...extra };
     if (body !== undefined && !isForm) headers['Content-Type'] = 'application/json';
     let res: Response;
     try {
@@ -75,7 +76,7 @@ export function createApi(baseUrl: string, fetchImpl: typeof fetch = (...a) => f
       res = await fetchImpl(`${base}${path}`, {
         method: body === undefined ? 'GET' : 'POST',
         credentials: 'include',
-        headers: { 'X-Requested-With': 'qr-order', ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) },
+        headers: { 'X-Requested-With': 'qr-order', 'X-Qr-Session': session, ...(body === undefined ? {} : { 'Content-Type': 'application/json' }) },
         body: body === undefined ? undefined : JSON.stringify(body),
       });
     } catch {

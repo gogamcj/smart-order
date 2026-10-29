@@ -36,8 +36,8 @@ export interface ApiClient {
 
 const NETWORK_MESSAGE = '서버에 연결할 수 없습니다. 네트워크 상태를 확인한 뒤 다시 시도해 주세요';
 
-/** session: 이 화면이 쓰는 로그인 쿠키. 고객 화면은 'customer', 업체·관리자 화면은 'staff' (서버가 쿠키를 따로 둔다) */
-export function createApi(baseUrl: string, fetchImpl: typeof fetch = (...a) => fetch(...a), session: 'customer' | 'staff' = 'staff'): ApiClient {
+/** session: 이 화면이 쓰는 로그인 쿠키. 서버가 화면(고객·업체·최고 관리자)마다 쿠키를 따로 둔다 */
+export function createApi(baseUrl: string, fetchImpl: typeof fetch = (...a) => fetch(...a), session: 'customer' | 'merchant' | 'admin' = 'merchant'): ApiClient {
   const base = baseUrl.replace(/\/+$/, '');
   async function request<T>(method: string, path: string, body?: unknown, extra: Record<string, string> = {}): Promise<T> {
     const isForm = typeof FormData !== 'undefined' && body instanceof FormData;

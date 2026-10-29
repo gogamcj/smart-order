@@ -1,0 +1,58 @@
+
+ RUN  v3.2.4 /home/user/qr-order-platform/apps/api
+
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > 결제 확인 없이 주문을 확정(placed)할 수 없다 18ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > [18-11] 허용된 전이만 가능하다: placed → accepted → preparing → ready → completed 24ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > [18-12] 상태 변경마다 이력(처리자·변경 전후)과 실시간 이벤트가 같은 트랜잭션에 기록된다 29ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > 동시에 두 직원이 같은 버전으로 처리하면 한 명만 성공한다 (낙관적 잠금) 15ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > 주문 생성 후 금액·업체·테이블은 바꿀 수 없다 10ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > [18-10 일부] 같은 고객의 같은 client_request_id 주문은 한 번만 생성된다 5ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > 주문 상품 금액은 (단가 + 옵션) × 수량과 일치해야 한다 8ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > 메뉴 가격이 바뀌어도 기존 주문 스냅샷은 그대로다 6ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > 승인 대기·정지된 업체와 주문 접수를 멈춘 업체는 주문을 받을 수 없다 42ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > 매장 화면 표시 번호는 영업일별로 1부터 증가한다 12ms
+ ✓ test/orders.test.ts > 주문 상태 전이와 이력 (DB 규칙) > 할인가는 정가보다 낮아야 한다 2ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > 같은 결제 요청 ID 는 두 번 만들 수 없다 18ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > [18-15 DB] 승인 금액이 청구 금액과 다르면 결제 완료로 기록할 수 없다 12ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > 한 주문에 결제 완료 건은 하나만 존재할 수 있다 (이중 결제 차단) 13ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > [18-16 DB] 같은 웹훅 이벤트 ID 는 한 번만 저장된다 4ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > [18-19, 18-20 DB] 부분 환불 후 잔액 전체 환불 시 결제 상태가 갱신된다 29ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > [18-21 DB] 결제 금액을 넘는 환불과 같은 키의 중복 환불은 거부된다 18ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > 완료된 환불은 다시 처리 상태를 바꿀 수 없다 10ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > 미결제 주문에는 환불을 만들 수 없다 8ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > 로컬/스테이징 DB 에는 실결제(live), 운영 DB 에는 테스트·가짜 결제가 들어갈 수 없다 9ms
+ ✓ test/payments.test.ts > 결제·환불 데이터 무결성 (DB 규칙) > 결제 청구 금액과 결제 요청 ID 는 생성 후 바꿀 수 없다 7ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > [18-4] 업체 A 직원은 업체 B 의 주문을 조회할 수 없다 4ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > [18-4] 업체 B 의 주문 상품·결제·상태 이력도 보이지 않는다 3ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > [18-5] 업체 A 직원은 업체 B 의 메뉴를 수정·삭제할 수 없다 (0행 반영) 2ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > [18-5] 업체 A 직원이 tenant_id 를 B 로 바꿔 메뉴를 넣으면 거부된다 (파라미터 변조) 2ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > [18-5] 자기 업체 메뉴를 다른 업체 소유로 옮길 수 없다 2ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > 업체 A 직원은 업체 B 의 주문 상태를 바꾸거나 환불을 넣을 수 없다 4ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > 업체 A 직원은 업체 B 의 직원 계정·QR·결제 계정을 볼 수 없다 2ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > 업체 컨텍스트가 없으면 아무 데이터도 보이지 않는다 (fail closed) 2ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > 업체 A 의 메뉴가 업체 B 의 카테고리를 참조하면 복합 외래 키가 거부한다 (소유자 권한이라도) 2ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > 고객은 같은 매장이라도 다른 고객의 주문을 볼 수 없다 7ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > [18-6 일부] 고객은 메뉴를 읽을 수만 있고 수정·주문 상태 변경은 할 수 없다 2ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > 고객은 다른 업체 컨텍스트로 주문을 만들 수 없다 2ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > 직원은 업체 승인 상태를 스스로 바꿀 수 없다 (컬럼 권한) 2ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > qr_app 은 결제 웹훅 원문·세션·멱등성 키 테이블에 접근할 수 없다 4ms
+ ✓ test/tenant-isolation.test.ts > 업체 간 데이터 격리 (PostgreSQL RLS) > 다른 업체 매장으로 주문 번호 발급 함수를 호출할 수 없다 2ms
+ ✓ test/qr-and-audit.test.ts > QR 토큰 검증과 감사 로그 > 유효한 토큰은 업체·매장·테이블로 해석된다 5ms
+ ✓ test/qr-and-audit.test.ts > QR 토큰 검증과 감사 로그 > 존재하지 않는 토큰은 아무것도 돌려주지 않는다 3ms
+ ✓ test/qr-and-audit.test.ts > QR 토큰 검증과 감사 로그 > 재발급하면 이전 토큰은 더 이상 쓸 수 없고, 테이블당 유효 QR 은 하나다 9ms
+ ✓ test/qr-and-audit.test.ts > QR 토큰 검증과 감사 로그 > 비활성 테이블, 정지된 업체의 QR 은 해석되지 않는다 11ms
+ ✓ test/qr-and-audit.test.ts > QR 토큰 검증과 감사 로그 > 추측하기 쉬운 짧은 토큰은 저장할 수 없다 2ms
+ ✓ test/qr-and-audit.test.ts > QR 토큰 검증과 감사 로그 > 감사 로그는 추가만 가능하고 수정·삭제할 수 없다 8ms
+ ✓ test/qr-and-audit.test.ts > QR 토큰 검증과 감사 로그 > 플랫폼 과금은 비활성 상태로만 존재한다 2ms
+ ✓ test/migrations.test.ts > DB 마이그레이션 > 빈 데이터베이스에 전체 마이그레이션을 순서대로 적용한다 (신규 설치) 244ms
+ ✓ test/migrations.test.ts > DB 마이그레이션 > 다시 실행하면 아무것도 적용하지 않는다 (멱등) 4ms
+ ✓ test/migrations.test.ts > DB 마이그레이션 > 새 마이그레이션 파일만 추가로 적용한다 (기존 버전 업데이트) 6ms
+ ✓ test/migrations.test.ts > DB 마이그레이션 > 이미 적용된 파일 내용이 바뀌면 실행을 거부한다 6ms
+ ✓ test/migrations.test.ts > DB 마이그레이션 > 실패한 마이그레이션은 롤백되고 기록되지 않는다 6ms
+ ✓ test/migrations.test.ts > DB 마이그레이션 > 모든 업체 소유 테이블에 RLS 가 켜져 있다 2ms
+
+ Test Files  5 passed (5)
+      Tests  49 passed (49)
+   Start at  02:02:56
+   Duration  3.63s (transform 150ms, setup 0ms, collect 298ms, tests 2.48s, environment 1ms, prepare 277ms)
+

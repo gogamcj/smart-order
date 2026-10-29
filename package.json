@@ -1,0 +1,14 @@
+{
+  "name": "qr-order-platform",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Multi-Tenant QR Table Order Platform",
+  "packageManager": "pnpm@10.28.0",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "db:migrate": "pnpm --filter @qr/api db:migrate",
+    "db:status": "pnpm --filter @qr/api db:status",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck"
+  }
+}

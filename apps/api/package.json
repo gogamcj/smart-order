@@ -7,12 +7,13 @@
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/src/main.js",
     "dev": "tsc -p tsconfig.build.json && node --env-file-if-exists=../../.env dist/src/main.js",
-    "db:migrate": "tsx src/db/cli.ts up",
-    "db:status": "tsx src/db/cli.ts status",
+    "db:migrate": "tsx --env-file-if-exists=../../.env src/db/cli.ts up",
+    "db:status": "tsx --env-file-if-exists=../../.env src/db/cli.ts status",
     "db:types": "kysely-codegen --dialect postgres --url \"$DATABASE_MIGRATION_URL\" --out-file src/db/schema.ts --exclude-pattern schema_migrations --date-parser string",
-    "admin:create": "tsx src/scripts/create-platform-admin.ts",
+    "admin:create": "tsx --env-file-if-exists=../../.env src/scripts/create-platform-admin.ts",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:roles": "tsx --env-file-if-exists=../../.env src/scripts/create-login-roles.ts"
   },
   "dependencies": {
     "@nestjs/common": "11.2.8",

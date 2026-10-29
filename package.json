@@ -8,8 +8,15 @@
     "node": ">=22"
   },
   "scripts": {
+    "setup:local": "node scripts/setup-local.mjs",
     "db:migrate": "pnpm --filter @qr/api db:migrate",
     "db:status": "pnpm --filter @qr/api db:status",
+    "db:roles": "pnpm --filter @qr/api db:roles",
+    "admin:create": "pnpm --filter @qr/api admin:create",
+    "dev:api": "pnpm --filter @qr/api dev",
+    "dev:order": "pnpm --filter @qr/order dev",
+    "dev:merchant": "pnpm --filter @qr/merchant dev",
+    "dev:admin": "pnpm --filter @qr/admin dev",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck"

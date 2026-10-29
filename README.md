@@ -19,34 +19,28 @@
 
 ## 로컬 실행
 
-요구사항: Node.js 22, pnpm 10, Docker(또는 로컬 PostgreSQL 16)
+요구사항: Node.js 22, pnpm 10, Docker Desktop. 쉬운 단계별 안내는 설치·서버 테스트 안내 문서를 참고하세요.
 
 ```bash
 pnpm install
-docker compose up -d postgres            # 로컬 PostgreSQL 16 (postgres/postgres)
-cp .env.example .env                     # SESSION_SECRET, DATA_* 키를 채움 (openssl rand ...)
-
-# DB 마이그레이션
-export DATABASE_MIGRATION_URL=postgres://postgres:postgres@localhost:5432/qr_order
-pnpm db:migrate
-# API 로그인 계정 연결 (로컬 예시, 비밀번호는 .env 의 DATABASE_URL 과 맞춤)
-psql "$DATABASE_MIGRATION_URL" -c "CREATE ROLE qr_api_login LOGIN PASSWORD '...'; GRANT qr_app TO qr_api_login;" \
-  -c "CREATE ROLE qr_worker_login LOGIN PASSWORD '...'; GRANT qr_system TO qr_worker_login;"
-# 최고 관리자 계정
-pnpm --filter @qr/api admin:create admin@example.kr
+docker compose up -d postgres            # 로컬 PostgreSQL 16
+pnpm setup:local                         # .env 생성(비밀 값 무작위, 개발용 로그인·테스트 결제 켬)
+pnpm db:migrate                          # DB 테이블 만들기
+pnpm db:roles                            # API 서버용 DB 로그인 계정 만들기
+pnpm admin:create admin@example.kr       # 최고 관리자 계정 (비밀번호 입력)
 
 # 실행 (각각 다른 터미널)
-pnpm --filter @qr/api dev                # API  http://localhost:3000
-pnpm --filter @qr/order dev              # 고객 http://localhost:5173  (QR 주소: /q/<토큰>)
-pnpm --filter @qr/merchant dev           # 업체 http://localhost:5174
-pnpm --filter @qr/admin dev              # 관리자 http://localhost:5175
+pnpm dev:api                             # API   http://localhost:3000
+pnpm dev:merchant                        # 업체  http://localhost:5174
+pnpm dev:admin                           # 관리자 http://localhost:5175
+pnpm dev:order                           # 고객  http://localhost:5173  (QR 주소로 들어감)
 
 # 테스트 (테스트마다 임시 DB 를 만들고 지움)
 export TEST_DATABASE_ADMIN_URL=postgres://postgres:postgres@localhost:5432/postgres
 pnpm test && pnpm typecheck && pnpm build
 ```
 
-카카오 키 없이 주문 흐름을 보려면 `.env` 에 `DEV_LOGIN_ENABLED=true`, `PAYMENT_PROVIDER=fake` 를 두고, `apps/order/.env` 에 `VITE_DEV_LOGIN=true` 를 둡니다. 화면에 "개발용 로그인", "테스트 결제 (실제 결제 아님)"으로 표시되며 운영 설정에서는 서버가 거부합니다.
+로컬 설정에서는 화면에 "개발용 로그인", "테스트 결제 (실제 결제 아님)"이 보입니다. 운영 설정(`APP_ENV=production`)에서는 서버가 둘 다 거부합니다.
 
 ## 디렉터리
 

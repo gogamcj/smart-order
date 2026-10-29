@@ -12,7 +12,7 @@ import { ENV, type Env } from '../config/env.js';
 import { Database } from '../db/database.js';
 import { Access, CustomerOnly, Public, StaffOnly } from './access.js';
 import { KAKAO_CLIENT, type KakaoClient } from './kakao.client.js';
-import { SessionService, sessionKindFor } from './session.service.js';
+import { SessionService, sessionKindFor, staffSessionKind } from './session.service.js';
 
 const OAUTH_COOKIE = 'qr_oauth';
 
@@ -55,7 +55,7 @@ export class AuthController {
         .values({ email: input.email, password_hash: passwordHash, display_name: input.displayName })
         .returning('id')
         .executeTakeFirstOrThrow();
-      await this.sessions.create(tx, res, user.id, 'staff', { ip: clientIp(req), userAgent: req.get('user-agent') });
+      await this.sessions.create(tx, res, user.id, 'staff', { ip: clientIp(req), userAgent: req.get('user-agent') }, staffSessionKind(req));
       return { userId: user.id };
     });
   }
@@ -73,7 +73,7 @@ export class AuthController {
     const ok = user?.password_hash && user.status === 'active' && (await verify(user.password_hash, input.password));
     if (!ok || !user) throw new AppError('INVALID_CREDENTIALS', 401, '이메일 또는 비밀번호가 올바르지 않습니다');
     await this.db.asSystem({ userId: user.id }, async (tx) => {
-      await this.sessions.create(tx, res, user.id, 'staff', { ip: clientIp(req), userAgent: req.get('user-agent') });
+      await this.sessions.create(tx, res, user.id, 'staff', { ip: clientIp(req), userAgent: req.get('user-agent') }, staffSessionKind(req));
       await audit(tx, { actorUserId: user.id, actorKind: 'staff', action: 'auth.staff_login', ip: clientIp(req), requestId: req.id });
     });
     return { userId: user.id };
@@ -212,7 +212,7 @@ export class AuthController {
         .where('provider', '=', 'kakao')
         .where('provider_user_id', '=', profile.kakaoId)
         .execute();
-      await this.sessions.create(tx, res, userId, 'customer', { ip: clientIp(req), userAgent: req.get('user-agent') });
+      await this.sessions.create(tx, res, userId, 'customer', { ip: clientIp(req), userAgent: req.get('user-agent') }, 'customer');
       return userId;
     });
     if (!result) return fail('account_unavailable');
@@ -242,7 +242,7 @@ export class AuthController {
         user = await tx.insertInto('users').values({ display_name: `[개발] ${nickname}` }).returning('id').executeTakeFirstOrThrow();
         await tx.insertInto('user_identities').values({ user_id: user.id, provider: 'kakao', provider_user_id: devId }).execute();
       }
-      await this.sessions.create(tx, res, user.id, 'customer', { ip: clientIp(req) });
+      await this.sessions.create(tx, res, user.id, 'customer', { ip: clientIp(req) }, 'customer');
       return { userId: user.id, devLogin: true };
     });
   }

@@ -15,6 +15,7 @@ import { createTestDb, type TestDb } from '../helpers/db.js';
 export const ORDER_ORIGIN = 'http://order.test';
 export const MERCHANT_ORIGIN = 'http://partner.test';
 export const ADMIN_ORIGIN = 'http://admin.test';
+const SESSION_BY_ORIGIN: Record<string, string> = { [ORDER_ORIGIN]: 'customer', [MERCHANT_ORIGIN]: 'merchant', [ADMIN_ORIGIN]: 'admin' };
 
 /** 카카오 대신 쓰는 가짜 클라이언트. code 가 'ok:<카카오ID>:<닉네임>' 이면 성공, 그 외는 실패 */
 export class FakeKakao implements KakaoClient {
@@ -32,7 +33,7 @@ export interface Harness {
   db: TestDb;
   app: INestApplication;
   payments: FakePaymentProvider;
-  /** 쿠키를 유지하는 브라우저 하나. origin 은 요청 Origin 헤더 */
+  /** 쿠키를 유지하는 브라우저 하나. origin 은 요청 Origin 헤더, 세션 쿠키 종류는 실제 화면처럼 origin 으로 정한다 */
   browser: (origin?: string) => TestAgent;
   close: () => Promise<void>;
 }
@@ -71,7 +72,12 @@ export async function createHarness(opts: { paymentProvider?: 'fake' | 'none'; t
     db,
     app,
     payments,
-    browser: (origin = ORDER_ORIGIN) => request.agent(server).set('Origin', origin).set('X-Requested-With', 'qr-order'),
+    browser: (origin = ORDER_ORIGIN) =>
+      request
+        .agent(server)
+        .set('Origin', origin)
+        .set('X-Requested-With', 'qr-order')
+        .set('X-Qr-Session', SESSION_BY_ORIGIN[origin] ?? 'customer'),
     close: async () => {
       await app.close();
       await db.drop();

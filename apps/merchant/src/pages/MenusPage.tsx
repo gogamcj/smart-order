@@ -1,3 +1,4 @@
+import { PageHeader } from '../components/PageHeader.js';
 import { Badge, Button, Card, ErrorBox, Field, fieldIssues, Input, Notice, Select, Spinner, Textarea, won } from '@qr/web';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -14,7 +15,8 @@ export function MenusPage() {
   const editable = can(tenant.data?.myRole, 'menus');
   const cats = useQuery({ queryKey: ['categories', storeId], queryFn: () => api.get<Category[]>(`/api/merchant/categories?storeId=${storeId}`), enabled: !!storeId });
   const menus = useQuery({ queryKey: ['admin-menus', storeId], queryFn: () => api.get<AdminMenu[]>(`/api/merchant/menus?storeId=${storeId}`), enabled: !!storeId });
-  const [catId, setCatId] = useState<string | null>(null);
+  const [filter, setFilter] = useState('all');
+  const [catsOpen, setCatsOpen] = useState<boolean | null>(null);
   const [editing, setEditing] = useState<AdminMenu | 'new' | null>(null);
   const [newCat, setNewCat] = useState('');
   const refresh = () => Promise.all([qc.invalidateQueries({ queryKey: ['categories'] }), qc.invalidateQueries({ queryKey: ['admin-menus'] })]);
@@ -45,76 +47,139 @@ export function MenusPage() {
 
   if (cats.isPending || menus.isPending) return <Spinner />;
   if (cats.isError || menus.isError) return <ErrorBox error={cats.error ?? menus.error} onRetry={() => void refresh()} />;
-  const activeCat = catId && cats.data.some((c) => c.id === catId) ? catId : (cats.data[0]?.id ?? null);
-  const list = menus.data.filter((m) => m.categoryId === activeCat);
+  const catName = new Map(cats.data.map((c) => [c.id, c.name]));
+  const filters: { key: string; label: string; match: (m: AdminMenu) => boolean; tone?: string }[] = [
+    { key: 'all', label: '전체', match: () => true },
+    ...cats.data.map((c) => ({ key: c.id, label: c.name, match: (m: AdminMenu) => m.categoryId === c.id })),
+    { key: 'on_sale', label: '판매중', match: (m: AdminMenu) => m.status === 'on_sale', tone: 'text-blue-600' },
+    { key: 'sold_out', label: '품절', match: (m: AdminMenu) => m.status === 'sold_out', tone: 'text-red-500' },
+  ];
+  const active = filters.find((x) => x.key === filter) ?? filters[0]!;
+  const list = menus.data.filter(active.match);
+  const showCats = catsOpen ?? cats.data.length === 0;
+  // 새 메뉴는 고른 분류(없으면 첫 분류)에 만든다
+  const newMenuCat = cats.data.some((c) => c.id === filter) ? filter : (cats.data[0]?.id ?? null);
 
   return (
-    <div className="grid gap-4 md:grid-cols-[260px_1fr]">
-      <aside className="space-y-2">
-        <h2 className="font-semibold">카테고리</h2>
-        {cats.data.map((c) => (
-          <div key={c.id} className={`group flex items-center gap-1 rounded-lg border px-2 py-1.5 text-sm ${c.id === activeCat ? 'border-neutral-900 bg-neutral-50' : 'border-gray-200 bg-white'}`}>
-            <button type="button" className="flex-1 truncate text-left" onClick={() => setCatId(c.id)}>
-              {c.name} {!c.isVisible && <Badge className="bg-gray-200 text-gray-600">숨김</Badge>}
-            </button>
-            {editable && (
-              <span className="flex gap-0.5 text-xs text-gray-500">
-                <button type="button" title="위로" onClick={() => catOp.mutate({ kind: 'up', cat: c })}>▲</button>
-                <button type="button" title="아래로" onClick={() => catOp.mutate({ kind: 'down', cat: c })}>▼</button>
-                <button type="button" title="이름 변경" onClick={() => { const name = prompt('카테고리 이름', c.name); if (name?.trim()) catOp.mutate({ kind: 'rename', cat: c, name: name.trim() }); }}>✎</button>
-                <button type="button" title={c.isVisible ? '숨기기' : '보이기'} onClick={() => catOp.mutate({ kind: 'toggle', cat: c })}>{c.isVisible ? '◉' : '○'}</button>
-                <button type="button" title="삭제" onClick={() => confirm(`'${c.name}' 카테고리를 삭제할까요?`) && catOp.mutate({ kind: 'delete', cat: c })}>✕</button>
-              </span>
-            )}
-          </div>
-        ))}
-        {editable && (
-          <form className="flex gap-1" onSubmit={(e) => { e.preventDefault(); if (newCat.trim()) addCat.mutate(); }}>
-            <Input placeholder="새 카테고리" value={newCat} maxLength={50} onChange={(e) => setNewCat(e.target.value)} />
-            <Button type="submit" tone="secondary" busy={addCat.isPending}>추가</Button>
-          </form>
-        )}
-        <ErrorBox error={addCat.error ?? catOp.error} />
-      </aside>
+    <div className="space-y-4">
+      <PageHeader title="메뉴 관리" desc="메뉴를 추가·수정하고 판매 여부를 바꿉니다.">
+        {editable && newMenuCat && <Button onClick={() => setEditing('new')}>메뉴 추가</Button>}
+      </PageHeader>
 
-      <section className="space-y-3">
+      <section className="rounded-xl border border-gray-200 bg-white px-5 py-4">
         <div className="flex items-center justify-between">
-          <h2 className="font-semibold">메뉴</h2>
-          {editable && activeCat && <Button onClick={() => setEditing('new')}>메뉴 추가</Button>}
+          <h2 className="font-semibold">분류 관리</h2>
+          <button type="button" className="rounded-full border border-gray-300 px-3 py-1 text-xs" onClick={() => setCatsOpen(!showCats)} aria-expanded={showCats}>
+            {showCats ? '접기' : '펼치기'}
+          </button>
         </div>
-        {!editable && <Notice>메뉴를 볼 수만 있습니다. 메뉴 수정은 업체 관리자나 메뉴 관리 직원이 할 수 있습니다.</Notice>}
-        {!activeCat && <Notice>먼저 카테고리를 만들어 주세요.</Notice>}
-        <ErrorBox error={menuOp.error} />
-        {editing && activeCat && <MenuEditor storeId={storeId!} categories={cats.data} categoryId={activeCat} menu={editing === 'new' ? null : editing} onDone={() => { setEditing(null); void refresh(); }} />}
-        <div className="grid gap-2 lg:grid-cols-2">
-          {list.map((m) => (
-            <Card key={m.id} className="flex gap-3">
-              {m.imageUrl ? <img src={m.imageUrl} alt="" className="h-20 w-20 rounded-lg object-cover" /> : <div className="h-20 w-20 rounded-lg bg-gray-100" />}
-              <div className="min-w-0 flex-1 space-y-1">
-                <div className="flex flex-wrap items-center gap-1">
-                  <span className="font-semibold">{m.name}</span>
-                  <Badge className={m.status === 'on_sale' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700'}>{MENU_STATUS_LABEL[m.status]}</Badge>
-                  {m.isPopular && <Badge className="bg-amber-50 text-amber-600">인기</Badge>}
+        {showCats && (
+          <div className="mt-3 space-y-2">
+            <div className="flex flex-wrap gap-2">
+              {cats.data.map((c) => (
+                <div key={c.id} className="flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm">
+                  <span>{c.name}</span>
+                  {!c.isVisible && <Badge className="bg-gray-200 text-gray-600">숨김</Badge>}
+                  {editable && (
+                    <span className="flex gap-1 text-xs text-gray-500">
+                      <button type="button" title="앞으로" onClick={() => catOp.mutate({ kind: 'up', cat: c })}>◀</button>
+                      <button type="button" title="뒤로" onClick={() => catOp.mutate({ kind: 'down', cat: c })}>▶</button>
+                      <button type="button" title="이름 변경" onClick={() => { const name = prompt('분류 이름', c.name); if (name?.trim()) catOp.mutate({ kind: 'rename', cat: c, name: name.trim() }); }}>✎</button>
+                      <button type="button" title={c.isVisible ? '숨기기' : '보이기'} onClick={() => catOp.mutate({ kind: 'toggle', cat: c })}>{c.isVisible ? '◉' : '○'}</button>
+                      <button type="button" title="삭제" onClick={() => confirm(`'${c.name}' 분류를 삭제할까요?`) && catOp.mutate({ kind: 'delete', cat: c })}>✕</button>
+                    </span>
+                  )}
                 </div>
-                <p className="text-sm">{m.salePrice != null ? <><s className="text-gray-400">{won(m.price)}</s> {won(m.salePrice)}</> : won(m.price)}</p>
-                <p className="text-xs text-gray-500">옵션 그룹 {m.optionGroups.length}개{m.availability.length > 0 && ' · 판매 시간 지정'}</p>
-                {editable && (
-                  <div className="flex flex-wrap gap-1 pt-1 text-xs">
-                    {(['on_sale', 'sold_out', 'paused'] as const).filter((s) => s !== m.status).map((s) => (
-                      <button key={s} type="button" className="rounded border px-2 py-0.5" onClick={() => menuOp.mutate({ kind: 'status', menu: m, status: s })}>{MENU_STATUS_LABEL[s]}로</button>
-                    ))}
-                    <button type="button" className="rounded border px-2 py-0.5" onClick={() => setEditing(m)}>수정</button>
-                    <button type="button" className="rounded border px-2 py-0.5" onClick={() => menuOp.mutate({ kind: 'duplicate', menu: m })}>복제</button>
-                    <button type="button" className="rounded border px-2 py-0.5 text-red-600" onClick={() => confirm(`'${m.name}' 메뉴를 삭제할까요?`) && menuOp.mutate({ kind: 'delete', menu: m })}>삭제</button>
-                  </div>
-                )}
-              </div>
-            </Card>
-          ))}
-        </div>
-        {activeCat && !list.length && <p className="text-sm text-gray-500">이 카테고리에 메뉴가 없습니다.</p>}
+              ))}
+            </div>
+            {editable && (
+              <form className="flex max-w-sm gap-1" onSubmit={(e) => { e.preventDefault(); if (newCat.trim()) addCat.mutate(); }}>
+                <Input placeholder="새 카테고리" value={newCat} maxLength={50} onChange={(e) => setNewCat(e.target.value)} />
+                <Button type="submit" tone="secondary" busy={addCat.isPending}>추가</Button>
+              </form>
+            )}
+            <ErrorBox error={addCat.error ?? catOp.error} />
+          </div>
+        )}
       </section>
+
+      {!editable && <Notice>메뉴를 볼 수만 있습니다. 메뉴 수정은 업체 관리자나 메뉴 관리 직원이 할 수 있습니다.</Notice>}
+      {!cats.data.length && <Notice>먼저 분류(카테고리)를 만들어 주세요.</Notice>}
+      <ErrorBox error={menuOp.error} />
+      {editing && newMenuCat && <MenuEditor storeId={storeId!} categories={cats.data} categoryId={editing === 'new' ? newMenuCat : editing.categoryId} menu={editing === 'new' ? null : editing} onDone={() => { setEditing(null); void refresh(); }} />}
+
+      <div className="flex flex-wrap gap-2" role="group" aria-label="메뉴 걸러 보기">
+        {filters.map((x) => {
+          const on = x.key === active.key;
+          return (
+            <button key={x.key} type="button" aria-pressed={on} onClick={() => setFilter(x.key)} className={`rounded-full border px-3.5 py-1.5 text-sm ${on ? 'border-slate-700 bg-slate-700 text-white' : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'}`}>
+              {x.label} <b className={on ? '' : (x.tone ?? '')}>{menus.data.filter(x.match).length}</b>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="overflow-x-auto rounded-xl bg-white shadow-sm">
+        <table className="w-full min-w-[760px] text-sm">
+          <thead className="bg-slate-600 text-white">
+            <tr>
+              {['분류', '사진', '상품명', '가격', '판매', '옵션', ''].map((h, i) => <th key={i} className="px-3 py-3 text-center font-semibold">{h}</th>)}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {list.map((m) => (
+              <tr key={m.id} className="align-middle">
+                <td className="px-3 py-3 text-center text-gray-600">{catName.get(m.categoryId)}</td>
+                <td className="px-3 py-3">
+                  {m.imageUrl ? <img src={m.imageUrl} alt="" className="mx-auto h-14 w-14 rounded-lg object-cover" /> : <div className="mx-auto h-14 w-14 rounded-lg border border-dashed border-gray-300 bg-gray-50" />}
+                </td>
+                <td className="px-3 py-3">
+                  <div className="flex flex-wrap items-center gap-1">
+                    <span className="font-semibold">{m.name}</span>
+                    {m.isPopular && <Badge className="bg-amber-50 text-amber-600">인기</Badge>}
+                    {m.availability.length > 0 && <Badge className="bg-gray-100 text-gray-600">판매 시간 지정</Badge>}
+                  </div>
+                </td>
+                <td className="whitespace-nowrap px-3 py-3 text-right">{m.salePrice != null ? <><s className="mr-1 text-gray-400">{won(m.price)}</s>{won(m.salePrice)}</> : won(m.price)}</td>
+                <td className="px-3 py-3 text-center">
+                  <SaleSwitch status={m.status} disabled={!editable || menuOp.isPending} onChange={(status) => menuOp.mutate({ kind: 'status', menu: m, status })} />
+                </td>
+                <td className="whitespace-nowrap px-3 py-3 text-center text-xs text-gray-600">옵션 그룹 {m.optionGroups.length}개</td>
+                <td className="whitespace-nowrap px-3 py-3 text-center">
+                  {editable && (
+                    <div className="flex justify-center gap-1 text-xs">
+                      <button type="button" className="rounded-md border px-2 py-1" onClick={() => setEditing(m)}>수정</button>
+                      <button type="button" className="rounded-md border px-2 py-1" onClick={() => menuOp.mutate({ kind: 'duplicate', menu: m })}>복제</button>
+                      <button type="button" className="rounded-md bg-red-50 px-2 py-1 text-red-600" onClick={() => confirm(`'${m.name}' 메뉴를 삭제할까요?`) && menuOp.mutate({ kind: 'delete', menu: m })}>삭제</button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {!list.length && <p className="p-8 text-center text-sm text-gray-400">해당하는 메뉴가 없습니다.</p>}
+      </div>
     </div>
+  );
+}
+
+/** 판매중 ↔ 품절 전환. 판매 중지·숨김 상태는 누르면 판매중으로 돌아간다 */
+function SaleSwitch({ status, disabled, onChange }: { status: MenuStatus; disabled: boolean; onChange: (s: MenuStatus) => void }) {
+  const on = status === 'on_sale';
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      aria-label={`판매 상태: ${MENU_STATUS_LABEL[status]}`}
+      disabled={disabled}
+      onClick={() => onChange(on ? 'sold_out' : 'on_sale')}
+      className={`relative inline-flex h-8 w-24 items-center rounded-full text-xs font-semibold transition-colors disabled:opacity-60 ${on ? 'bg-slate-700 text-white' : 'bg-gray-200 text-gray-600'}`}
+    >
+      <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all ${on ? 'right-1' : 'left-1'}`} aria-hidden />
+      <span className={`w-full ${on ? 'pr-7' : 'pl-7'}`}>{MENU_STATUS_LABEL[status]}</span>
+    </button>
   );
 }
 

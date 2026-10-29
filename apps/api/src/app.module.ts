@@ -16,6 +16,7 @@ import { Database } from './db/database.js';
 import { HealthController } from './health/health.controller.js';
 import { MediaService } from './media/media.service.js';
 import { MerchantOrdersController } from './merchant/merchant-orders.controller.js';
+import { MerchantReportsController } from './merchant/merchant-reports.controller.js';
 import { OrderContextService } from './ordering/order-context.service.js';
 import { OrderingController } from './ordering/ordering.controller.js';
 import { FakePaymentProvider } from './payments/fake-payment.provider.js';
@@ -70,6 +71,7 @@ export class AppModule implements NestModule {
         CatalogController,
         OrderingController,
         MerchantOrdersController,
+        MerchantReportsController,
         PaymentsController,
       ],
       providers,

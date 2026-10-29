@@ -17,11 +17,12 @@ export function useStores(enabled = true) {
 }
 
 /** 화면의 버튼 표시용. 실제 권한 검사는 서버가 한다 */
-export function can(role: Role | undefined, action: 'orders' | 'cancel' | 'menus' | 'admin') {
+export function can(role: Role | undefined, action: 'orders' | 'cancel' | 'menus' | 'admin' | 'reports') {
   if (!role) return false;
   if (role === 'tenant_admin') return true;
   if (action === 'orders') return role === 'order_staff';
   if (action === 'menus') return role === 'menu_staff';
+  if (action === 'reports') return role === 'viewer';
   return false;
 }
 

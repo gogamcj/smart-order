@@ -1,3 +1,4 @@
+import { PageHeader } from '../components/PageHeader.js';
 import { Badge, ErrorBox, Input, ORDER_STATUS_LABEL, ORDER_STATUS_TONE, Select, Spinner, dateTime, won } from '@qr/web';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -22,7 +23,7 @@ export function HistoryPage() {
 
   return (
     <div className="space-y-3">
-      <h1 className="text-lg font-bold">주문 내역</h1>
+      <PageHeader title="주문 내역" desc="날짜·상태별로 지난 주문을 찾아봅니다." />
       <div className="flex flex-wrap gap-2">
         <Input type="date" className="w-auto" value={from} onChange={(e) => setFrom(e.target.value)} aria-label="시작일" />
         <Input type="date" className="w-auto" value={to} onChange={(e) => setTo(e.target.value)} aria-label="종료일" />

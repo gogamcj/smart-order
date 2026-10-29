@@ -42,6 +42,7 @@ export interface MerchantOrder {
   orderNo: string;
   displayNo: number;
   storeId: string;
+  tableId: string;
   tableLabel: string;
   status: OrderStatus;
   version: number;

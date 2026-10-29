@@ -1,3 +1,4 @@
+import { PageHeader } from '../components/PageHeader.js';
 import { Badge, Button, Card, ErrorBox, Field, Input, Select, Spinner } from '@qr/web';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
@@ -20,7 +21,7 @@ export function MembersPage() {
   if (members.isError) return <ErrorBox error={members.error} onRetry={() => void members.refetch()} />;
   return (
     <div className="space-y-4">
-      <h1 className="text-lg font-bold">직원</h1>
+      <PageHeader title="직원" desc="직원 계정을 추가하고 맡길 일을 정합니다." />
       <Card className="space-y-2">
         <h2 className="font-semibold">직원 추가</h2>
         <p className="text-xs text-gray-500">직원이 먼저 매장 관리 화면에서 계정을 만든 뒤, 그 이메일로 추가합니다.</p>
